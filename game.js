@@ -149,7 +149,9 @@ function stopTutorial() {
   document.body.style.removeProperty('--customer-top');
 }
 function start() {
+  playerStore.finishRun(game.score);
   stopTutorial(); suppressPotClickUntil = 0; game.start(); selectedPot = 0; selectedOrder = 0; paused = false; lastTime = performance.now();
+  playerStore.beginRun();
   document.body.classList.add('playing'); $('dialog').close();
   tell('영업 시작! 손님 주문에 맞춰 물 → 면 → 토핑을 넣어 주세요.'); render();
 }
@@ -174,6 +176,7 @@ function updateTutorial() {
 }
 function advanceTutorial() { tutorialStep++; updateTutorial(); }
 function startTutorial() {
+  playerStore.finishRun(game.score);
   stopTutorial(); suppressPotClickUntil = 0; game.start();
   selectedPot = 0; selectedOrder = 0; paused = false; tutorialStep = 0; lastTime = performance.now();
   document.body.classList.add('playing', 'tutorial'); $('dialog').close(); $('tutorial-panel').hidden = false;
@@ -189,6 +192,8 @@ function showDialog(mode) {
   cancelIngredientDrag();
   hideFeedback();
   dialogMode = mode; paused = true;
+  if (mode === 'result') playerStore.finishRun(game.score);
+  preparePlayerEntry(mode);
   const firstVisit = mode === 'start' && !tutorialCompleted;
   const practiceHelp = mode === 'help' && tutorialStep !== null;
   $('dialog').classList.toggle('is-first-visit', firstVisit);
@@ -210,12 +215,14 @@ function resume() {
   paused = false; lastTime = performance.now(); $('dialog').close(); render();
   if (tutorialStep !== null) focusTutorialTarget();
 }
-$('dialog-action').addEventListener('click', () => {
+$('dialog-action').addEventListener('click', async () => {
+  if (!await ensurePlayerIdentity()) return;
   if (dialogMode === 'help' && game.active) resume();
   else if (dialogMode === 'start' && !tutorialCompleted) startTutorial();
   else start();
 });
-$('dialog-secondary').addEventListener('click', () => {
+$('dialog-secondary').addEventListener('click', async () => {
+  if (!await ensurePlayerIdentity()) return;
   if ((dialogMode === 'start' && !tutorialCompleted) || (dialogMode === 'help' && tutorialStep !== null)) start();
   else startTutorial();
 });
@@ -299,6 +306,7 @@ function serveTo(potIndex, orderIndex) {
   }
   selectedPot = potIndex; selectedOrder = orderIndex;
   const result = game.serve(potIndex, orderIndex); tell(result.message, result.ok ? 'success' : 'error', $('pots').children[potIndex].querySelector('button'), result.points);
+  if (tutorialStep === null) playerStore.advanceRun(game.score, 0);
   if (tutorialStep !== null && result.ok) finishTutorial(); else render();
 }
 
@@ -371,12 +379,17 @@ document.addEventListener('keydown', e => {
   if (ingredients[Number(e.key) - 1]) { e.preventDefault(); addIngredient(ingredients[Number(e.key) - 1]); }
   else if (e.key === 'Enter' && !['BUTTON', 'A'].includes(document.activeElement.tagName)) { e.preventDefault(); $('serve').click(); }
 });
-document.addEventListener('visibilitychange', () => { if (document.hidden && game.active && !paused) showDialog('help'); });
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && game.active && !paused) showDialog('help');
+  if (!document.hidden) lastTime = performance.now();
+});
 function frame(now) {
   const dt = (now - lastTime) / 1000; lastTime = now;
-  if (game.active && !paused) {
+  if (game.active && !paused && !document.hidden) {
     if (tutorialStep === null) {
+      const playMs = Math.max(0, Math.min(dt, game.time)) * 1000;
       const events = game.tick(dt);
+      playerStore.advanceRun(game.score, playMs);
       if (events.length) tell(events.length > 1 ? `손님 ${events.length}명이 떠났어요. 다음 주문을 준비해요!` : events[0], 'error', null, -30 * events.length);
     } else if (tutorialSteps[tutorialStep].action === 'wait') {
       // Only the practice pot cooks. The timer and customers stay frozen.
@@ -388,6 +401,8 @@ function frame(now) {
   }
   requestAnimationFrame(frame);
 }
-render(); showDialog('start'); requestAnimationFrame(frame);
-document.querySelectorAll('#help, #restart').forEach(el => { el.disabled = false; });
-$('preview-notice').hidden = true;
+function initializeGame() {
+  render(); showDialog('start'); requestAnimationFrame(frame);
+  document.querySelectorAll('#help, #restart, #community-open').forEach(el => { el.disabled = false; });
+  $('preview-notice').hidden = true;
+}

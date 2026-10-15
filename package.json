@@ -1,0 +1,12 @@
+{
+  "name": "kkuri-ramen-shop",
+  "private": true,
+  "scripts": {
+    "build": "python3 bundle.py",
+    "test": "node --test engine.test.js social.test.js",
+    "test:database": "node --test supabase/schema.test.js"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.10"
+  }
+}

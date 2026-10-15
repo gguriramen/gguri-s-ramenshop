@@ -20,7 +20,7 @@ def asset_uri(name):
 
 # The sprite sheet is embedded once; individual icons reuse its CSS variable.
 css = re.sub(r'url\("(assets/[^"\n]+)"\)', lambda m: 'url("' + asset_uri(m.group(1)) + '")', css)
-scripts = "\n".join((root / name).read_text() for name in ("engine.js", "game.js"))
+scripts = "\n".join((root / name).read_text() for name in ("engine.js", "social-config.js", "social.js", "game.js", "community.js"))
 if "</script" in scripts.lower() or "</style" in css.lower():
     raise ValueError("Asset contains an unexpected HTML closing tag")
 
