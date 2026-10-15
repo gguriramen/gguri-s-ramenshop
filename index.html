@@ -512,9 +512,9 @@ html.holding-ramen { overscroll-behavior: none; }
 .feedback-bowl { display: none; }
 .input-feedback.is-success { border-color: #9bb89a; background: #f4fae9; color: #476d50; box-shadow: 0 5px 0 #b8cba450, 0 10px 26px #34482c25; }
 .is-success .feedback-mark { display: none; }
-.is-success .feedback-bowl { display: block; width: 68px; height: 106px; margin: -22px 0 -12px; }
+.is-success .feedback-bowl { display: block; width: 68px; height: 68px; margin: 0; background-size: 400% 266.666667%; background-position-y: 28.75%; }
 .is-success #feedback-text { font-size: 21px; }
-@media (max-width: 360px), (max-height: 500px) { .is-success .feedback-bowl { width: 58px; height: 91px; margin: -20px 0 -12px; } .is-success #feedback-text { font-size: 18px; } }
+@media (max-width: 360px), (max-height: 500px) { .is-success .feedback-bowl { width: 58px; height: 58px; margin: 0; } .is-success #feedback-text { font-size: 18px; } }
 
 /* Brand assets and a single-screen mobile game board. */
 .brand-logo { display: block; width: 48px; height: 48px; object-fit: contain; flex-shrink: 0; }
@@ -671,7 +671,7 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
 .drag-mode .notice-space .tutorial-panel { grid-area: 1 / 1; margin: 0; }
 .drag-mode .notice-space .input-feedback { position: static; inset: auto !important; transform: none; width: 100%; max-width: 540px; justify-self: center; margin: 0; padding: 6px 8px; gap: 7px; border-radius: 18px; box-shadow: 0 3px 0 #d1aa8030; }
 .drag-mode .notice-space #feedback-text { font-size: 16px; line-height: 1.35; }
-.drag-mode .notice-space .feedback-bowl { width: 44px; height: 68px; margin: -12px 0; }
+.drag-mode .notice-space .feedback-bowl { width: 44px; height: 44px; margin: 0; }
 .drag-mode .notice-space .is-success #feedback-text { font-size: 18px; }
 .drag-mode .notice-space:has(.input-feedback:not([hidden])) .tutorial-panel { visibility: hidden; }
 @media (max-height: 600px) {
@@ -699,7 +699,7 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
   .drag-mode .notice-space #feedback-text { font-size: 14px; }
   .drag-mode .notice-space .is-success #feedback-text { font-size: 16px; }
   .drag-mode .notice-space { padding: 0 8px; }
-  .drag-mode .notice-space .feedback-bowl { width: 36px; height: 56px; margin: -8px 0; }
+  .drag-mode .notice-space .feedback-bowl { width: 36px; height: 36px; margin: 0; }
   .drag-mode #tutorial-title { font-size: 14px; margin-bottom: 1px; }
   .drag-mode #tutorial-text { font-size: 10px; line-height: 1.25; }
 }
@@ -748,7 +748,7 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
   .drag-mode .notice-space .input-feedback { padding: 0 5px; border-radius: 14px; }
   .drag-mode .notice-space #feedback-text { font-size: 13px; }
   .drag-mode .notice-space .is-success #feedback-text { font-size: 15px; }
-  .drag-mode .notice-space .feedback-bowl { width: 32px; height: 50px; margin: -5px 0; }
+  .drag-mode .notice-space .feedback-bowl { width: 32px; height: 32px; margin: 0; }
   .drag-mode .notice-space .tutorial-panel { padding: 2px 6px; gap: 4px; border-radius: 13px; }
   .drag-mode #tutorial-title { font-size: 13px; margin-bottom: 1px; }
   .drag-mode #tutorial-text { font-size: 10px; line-height: 1.15; }
