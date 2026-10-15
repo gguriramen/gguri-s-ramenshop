@@ -479,6 +479,17 @@ html.holding-ramen { overscroll-behavior: none; }
   .tutorial-panel #tutorial-progress { display: none; }
 }
 
+/* Validation feedback remains visible above the scrolled kitchen. */
+.input-feedback[hidden] { display: none; }
+.input-feedback { position: fixed; z-index: 30; left: 50%; transform: translateX(-50%); width: min(540px, calc(100% - 20px)); display: flex; align-items: center; gap: 10px; padding: 12px 10px 12px 14px; border: 2px solid #d49d7e; border-radius: 22px; background: #fff5df; color: #804e37; box-shadow: 0 5px 0 #d1aa8050, 0 10px 26px #4c302633; pointer-events: none; }
+.feedback-mark { display: grid; place-items: center; flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: #b97557; color: #fff9eb; font-family: 'Gguri Jua', sans-serif; font-size: 24px; }
+#feedback-text { flex: 1; min-width: 0; margin: 0; font-family: 'Gguri Jua', sans-serif; font-size: 18px; line-height: 1.55; word-break: keep-all; overflow-wrap: anywhere; }
+#feedback-close { flex-shrink: 0; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid #ddbea1; border-radius: 14px; background: #fffcf0; color: #99735a; font: 25px Arial, sans-serif; pointer-events: auto; }
+.input-mistake { outline: 3px solid #c78c70 !important; outline-offset: 3px; border-radius: 16px; animation: mistake-cue .3s ease-out; }
+.message.error { background: #fff0df; color: #99583d; border-top: 1px solid #dfb895; font-family: 'Gguri Jua', sans-serif; font-size: 15px; }
+@keyframes mistake-cue { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-3px); } 70% { transform: translateX(3px); } }
+@media (max-width: 360px), (max-height: 500px) { .input-feedback { gap: 7px; padding: 9px; } #feedback-text { font-size: 16px; } .feedback-mark { width: 27px; height: 27px; font-size: 21px; } }
+
 </style>
 <!-- GAME STYLE END -->
 </head>
@@ -537,6 +548,10 @@ html.holding-ramen { overscroll-behavior: none; }
     <footer><span>한 그릇씩, 정성을 담아 ♡</span><button id="restart" disabled class="quiet">다시 시작</button></footer>
   </main>
   <div id="drag-bowl" class="drag-bowl sprite bowl" hidden aria-hidden="true"></div>
+  <aside id="input-feedback" class="input-feedback" role="alert" aria-atomic="true" hidden>
+    <span class="feedback-mark" aria-hidden="true">!</span><p id="feedback-text"></p>
+    <button id="feedback-close" type="button" aria-label="안내 닫기">×</button>
+  </aside>
   <dialog id="dialog">
     <div class="modal-icon sprite bowl" aria-hidden="true"></div><span class="eyebrow">WELCOME TO GGURI RAMEN</span>
     <h2 id="dialog-title">어서 오세요,<br>꾸리라멘입니다!</h2>
@@ -652,6 +667,7 @@ let tutorialCompleted = false;
 try { tutorialCompleted = localStorage.getItem(tutorialKey) === 'yes'; } catch { /* File previews may block storage. */ }
 const mobileMedia = matchMedia('(max-width: 760px), (max-width: 950px) and (max-height: 500px), (pointer: coarse)');
 let mobileServing = mobileMedia.matches, servingDrag = null, suppressPotClickUntil = 0;
+let feedbackTimer = null, mistakeTimer = null, mistakeTarget = null;
 document.body.classList.toggle('drag-mode', mobileServing);
 
 function tutorialInstruction() {
@@ -677,10 +693,31 @@ for (let i = 0; i < 3; i++) {
   });
   $('pots').children[i].addEventListener('pointerdown', event => beginServingDrag(event, i));
 }
-function tell(message, type = '') {
-  $('message').textContent = message; $('message').className = `message ${type}`;
-  $('served-dish').hidden = type !== 'success';
+function hideFeedback() {
+  clearTimeout(feedbackTimer); clearTimeout(mistakeTimer);
+  $('input-feedback').hidden = true;
+  mistakeTarget?.classList.remove('input-mistake'); mistakeTarget = null;
 }
+function tell(message, type = '', target = null) {
+  $('message').textContent = message; $('message').className = `message ${type}`;
+  $('message').setAttribute('aria-live', type === 'error' ? 'off' : 'polite');
+  $('served-dish').hidden = type !== 'success';
+  if (type !== 'error') { hideFeedback(); return; }
+  clearTimeout(feedbackTimer);
+  $('feedback-text').textContent = message;
+  $('input-feedback').style.top = $('tutorial-panel').hidden ? 'max(12px, env(safe-area-inset-top, 0px))' : `${$('tutorial-panel').getBoundingClientRect().bottom + 8}px`;
+  $('input-feedback').hidden = false;
+  feedbackTimer = setTimeout(hideFeedback, 5500);
+  if (target) {
+    clearTimeout(mistakeTimer); mistakeTarget?.classList.remove('input-mistake');
+    mistakeTarget = target;
+    // Restart the short cue even if the same control is pressed repeatedly.
+    target.classList.remove('input-mistake'); void target.offsetWidth;
+    target.classList.add('input-mistake');
+    mistakeTimer = setTimeout(() => { mistakeTarget?.classList.remove('input-mistake'); mistakeTarget = null; }, 700);
+  }
+}
+$('feedback-close').addEventListener('click', hideFeedback);
 function render() {
   $('time').innerHTML = tutorialStep !== null ? '연습<small>중</small>' : `${Math.ceil(game.time)}<small>초</small>`;
   $('time').className = tutorialStep === null && game.time <= 15 ? 'urgent' : '';
@@ -763,6 +800,7 @@ function finishTutorial() {
 }
 function showDialog(mode) {
   cancelServingDrag();
+  hideFeedback();
   dialogMode = mode; paused = true;
   $('dialog').classList.toggle('is-result', mode === 'result');
   $('result-summary').hidden = mode !== 'result';
@@ -793,8 +831,11 @@ $('help').addEventListener('click', () => showDialog('help'));
 $('restart').addEventListener('click', () => tutorialStep !== null ? startTutorial() : showDialog('result'));
 function addIngredient(ingredient) {
   if (!canUse(ingredient)) return;
-  tell(game.add(selectedPot, ingredient));
-  if (tutorialStep !== null) advanceTutorial(); else render();
+  const before = JSON.stringify(game.pots[selectedPot]);
+  const message = game.add(selectedPot, ingredient);
+  const accepted = before !== JSON.stringify(game.pots[selectedPot]);
+  tell(message, accepted ? '' : 'error', document.querySelector(`[data-ingredient="${ingredient}"]`));
+  if (tutorialStep !== null && accepted) advanceTutorial(); else render();
 }
 document.querySelectorAll('[data-ingredient]').forEach(el => el.addEventListener('click', () => addIngredient(el.dataset.ingredient)));
 $('clear').addEventListener('click', () => {
@@ -805,10 +846,10 @@ $('serve').addEventListener('click', () => serveTo(selectedPot, selectedOrder));
 function serveTo(potIndex, orderIndex) {
   if (!canUse('serve')) return;
   if (tutorialStep !== null && (potIndex !== 0 || orderIndex !== 0)) {
-    tell('첫 라멘은 토끼 친구에게 내주세요. 다시 끌어다 놓아 봐요.'); return;
+    tell('첫 라멘은 토끼 친구에게 내주세요. 다시 끌어다 놓아 봐요.', 'error'); return;
   }
   selectedPot = potIndex; selectedOrder = orderIndex;
-  const result = game.serve(potIndex, orderIndex); tell(result.message, result.ok ? 'success' : 'error');
+  const result = game.serve(potIndex, orderIndex); tell(result.message, result.ok ? 'success' : 'error', $('pots').children[potIndex].querySelector('button'));
   if (tutorialStep !== null && result.ok) finishTutorial(); else render();
 }
 
@@ -856,7 +897,7 @@ function endServingDrag(event) {
   if (moved) { event.preventDefault(); suppressPotClickUntil = performance.now() + 350; }
   cancelServingDrag();
   if (moved && orderIndex !== null) serveTo(potIndex, orderIndex);
-  else if (moved) tell('손님에게 끌어다 놓아 주세요. 라멘은 냄비에 그대로 있어요.');
+  else if (moved) tell('손님에게 끌어다 놓아 주세요. 라멘은 냄비에 그대로 있어요.', 'error', $('pots').children[potIndex].querySelector('button'));
 }
 document.addEventListener('pointermove', moveServingDrag, {passive: false});
 // Safari also needs a non-passive touch handler to suppress native page panning.

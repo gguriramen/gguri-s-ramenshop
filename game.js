@@ -19,6 +19,7 @@ let tutorialCompleted = false;
 try { tutorialCompleted = localStorage.getItem(tutorialKey) === 'yes'; } catch { /* File previews may block storage. */ }
 const mobileMedia = matchMedia('(max-width: 760px), (max-width: 950px) and (max-height: 500px), (pointer: coarse)');
 let mobileServing = mobileMedia.matches, servingDrag = null, suppressPotClickUntil = 0;
+let feedbackTimer = null, mistakeTimer = null, mistakeTarget = null;
 document.body.classList.toggle('drag-mode', mobileServing);
 
 function tutorialInstruction() {
@@ -44,10 +45,31 @@ for (let i = 0; i < 3; i++) {
   });
   $('pots').children[i].addEventListener('pointerdown', event => beginServingDrag(event, i));
 }
-function tell(message, type = '') {
-  $('message').textContent = message; $('message').className = `message ${type}`;
-  $('served-dish').hidden = type !== 'success';
+function hideFeedback() {
+  clearTimeout(feedbackTimer); clearTimeout(mistakeTimer);
+  $('input-feedback').hidden = true;
+  mistakeTarget?.classList.remove('input-mistake'); mistakeTarget = null;
 }
+function tell(message, type = '', target = null) {
+  $('message').textContent = message; $('message').className = `message ${type}`;
+  $('message').setAttribute('aria-live', type === 'error' ? 'off' : 'polite');
+  $('served-dish').hidden = type !== 'success';
+  if (type !== 'error') { hideFeedback(); return; }
+  clearTimeout(feedbackTimer);
+  $('feedback-text').textContent = message;
+  $('input-feedback').style.top = $('tutorial-panel').hidden ? 'max(12px, env(safe-area-inset-top, 0px))' : `${$('tutorial-panel').getBoundingClientRect().bottom + 8}px`;
+  $('input-feedback').hidden = false;
+  feedbackTimer = setTimeout(hideFeedback, 5500);
+  if (target) {
+    clearTimeout(mistakeTimer); mistakeTarget?.classList.remove('input-mistake');
+    mistakeTarget = target;
+    // Restart the short cue even if the same control is pressed repeatedly.
+    target.classList.remove('input-mistake'); void target.offsetWidth;
+    target.classList.add('input-mistake');
+    mistakeTimer = setTimeout(() => { mistakeTarget?.classList.remove('input-mistake'); mistakeTarget = null; }, 700);
+  }
+}
+$('feedback-close').addEventListener('click', hideFeedback);
 function render() {
   $('time').innerHTML = tutorialStep !== null ? '연습<small>중</small>' : `${Math.ceil(game.time)}<small>초</small>`;
   $('time').className = tutorialStep === null && game.time <= 15 ? 'urgent' : '';
@@ -130,6 +152,7 @@ function finishTutorial() {
 }
 function showDialog(mode) {
   cancelServingDrag();
+  hideFeedback();
   dialogMode = mode; paused = true;
   $('dialog').classList.toggle('is-result', mode === 'result');
   $('result-summary').hidden = mode !== 'result';
@@ -160,8 +183,11 @@ $('help').addEventListener('click', () => showDialog('help'));
 $('restart').addEventListener('click', () => tutorialStep !== null ? startTutorial() : showDialog('result'));
 function addIngredient(ingredient) {
   if (!canUse(ingredient)) return;
-  tell(game.add(selectedPot, ingredient));
-  if (tutorialStep !== null) advanceTutorial(); else render();
+  const before = JSON.stringify(game.pots[selectedPot]);
+  const message = game.add(selectedPot, ingredient);
+  const accepted = before !== JSON.stringify(game.pots[selectedPot]);
+  tell(message, accepted ? '' : 'error', document.querySelector(`[data-ingredient="${ingredient}"]`));
+  if (tutorialStep !== null && accepted) advanceTutorial(); else render();
 }
 document.querySelectorAll('[data-ingredient]').forEach(el => el.addEventListener('click', () => addIngredient(el.dataset.ingredient)));
 $('clear').addEventListener('click', () => {
@@ -172,10 +198,10 @@ $('serve').addEventListener('click', () => serveTo(selectedPot, selectedOrder));
 function serveTo(potIndex, orderIndex) {
   if (!canUse('serve')) return;
   if (tutorialStep !== null && (potIndex !== 0 || orderIndex !== 0)) {
-    tell('첫 라멘은 토끼 친구에게 내주세요. 다시 끌어다 놓아 봐요.'); return;
+    tell('첫 라멘은 토끼 친구에게 내주세요. 다시 끌어다 놓아 봐요.', 'error'); return;
   }
   selectedPot = potIndex; selectedOrder = orderIndex;
-  const result = game.serve(potIndex, orderIndex); tell(result.message, result.ok ? 'success' : 'error');
+  const result = game.serve(potIndex, orderIndex); tell(result.message, result.ok ? 'success' : 'error', $('pots').children[potIndex].querySelector('button'));
   if (tutorialStep !== null && result.ok) finishTutorial(); else render();
 }
 
@@ -223,7 +249,7 @@ function endServingDrag(event) {
   if (moved) { event.preventDefault(); suppressPotClickUntil = performance.now() + 350; }
   cancelServingDrag();
   if (moved && orderIndex !== null) serveTo(potIndex, orderIndex);
-  else if (moved) tell('손님에게 끌어다 놓아 주세요. 라멘은 냄비에 그대로 있어요.');
+  else if (moved) tell('손님에게 끌어다 놓아 주세요. 라멘은 냄비에 그대로 있어요.', 'error', $('pots').children[potIndex].querySelector('button'));
 }
 document.addEventListener('pointermove', moveServingDrag, {passive: false});
 // Safari also needs a non-passive touch handler to suppress native page panning.
