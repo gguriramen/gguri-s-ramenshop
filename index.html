@@ -410,6 +410,32 @@ dialog h2 { font-size: 30px; }
   .tutorial .shop { padding-top: 135px; }
 }
 
+/* Closing time celebrates the score; instructions stay in the help dialog. */
+.result-summary[hidden] { display: none; }
+.result-summary { position: relative; padding: 25px 18px 18px; margin: 20px 0 24px; border: 2px solid #d8dfc6; border-radius: 26px; background: radial-gradient(circle at 12% 15%, #e7cd8c 0 3px, transparent 4px), radial-gradient(circle at 89% 24%, #a3bea0 0 4px, transparent 5px), linear-gradient(145deg, #fff8df, #eff4e7); box-shadow: 0 5px 0 #d8d1b440; }
+.result-label { display: block; color: #7a8268; font-size: 15px; }
+.result-score-line { display: flex; align-items: baseline; justify-content: center; gap: 7px; margin: 7px 0 20px; color: var(--navy); }
+#result-score { font-family: 'Gguri Jua', sans-serif; font-weight: 400; font-size: clamp(52px, 15vw, 84px); line-height: 1.15; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; min-width: 0; }
+.result-score-line > span { font-size: 18px; flex-shrink: 0; }
+.result-guests { display: flex; align-items: center; justify-content: center; gap: 14px; padding-top: 15px; border-top: 1px dashed #cbd1ba; color: #738068; font-size: 13px; }
+#result-served { font-family: 'Gguri Jua', sans-serif; font-size: 25px; font-weight: 400; color: #5b8265; }
+.result-summary p { font-size: 12px; color: #8c8169; margin: 9px 0 0; }
+.is-result .instructions, .is-result .modal-note, .is-result .eyebrow, .is-result .modal-icon, .is-result #dialog-secondary, .is-result #dialog-description { display: none; }
+dialog.is-result { padding: 28px; }
+.is-result #dialog-title { margin: 4px 0 0; font-size: 28px; }
+.is-result #dialog-action { font-size: 18px; }
+@media (max-width: 360px), (max-height: 500px) {
+  dialog.is-result { padding: 18px; }
+  .result-summary { padding: 18px 12px 12px; margin: 14px 0 20px; }
+}
+@media (max-height: 500px) {
+  .is-result #dialog-title { font-size: 23px; }
+  #result-score { font-size: 54px; }
+  .result-score-line { margin: 4px 0 8px; }
+  .result-guests { padding-top: 8px; }
+  .is-result .result-summary p { margin: 4px 0 0; }
+}
+
 </style>
 <!-- GAME STYLE END -->
 </head>
@@ -471,6 +497,12 @@ dialog h2 { font-size: 30px; }
     <div class="modal-icon sprite bowl" aria-hidden="true"></div><span class="eyebrow">WELCOME TO GGURI RAMEN</span>
     <h2 id="dialog-title">어서 오세요,<br>꾸리라멘입니다!</h2>
     <p id="dialog-description">90초 동안 손님에게 맛있는 라멘을 만들어 주세요.</p>
+    <section id="result-summary" class="result-summary" hidden aria-label="영업 결과">
+      <span class="result-label">오늘의 점수</span>
+      <div class="result-score-line"><strong id="result-score">0</strong><span>점</span></div>
+      <div class="result-guests"><span>행복한 손님</span><strong id="result-served">0명</strong></div>
+      <p>오늘도 따뜻한 한 그릇!</p>
+    </section>
     <div class="instructions"><p><b>01</b> 손님과 사용할 냄비를 선택해요.</p><p><b>02</b> <strong>물 → 면 → 주문한 토핑</strong> 순서로 넣어요.</p><p><b>03</b> 면을 넣고 <strong>6~10초</strong>, 초록 구간에 내주세요!</p><p><b>♡</b> 손님은 30초 동안 기다려요. 연속 성공은 보너스!</p></div>
     <button id="dialog-action" class="serve">영업 시작하기 <span>→</span></button>
     <button id="dialog-secondary" class="quiet dialog-secondary">연습 건너뛰고 바로 영업하기</button>
@@ -663,6 +695,12 @@ function finishTutorial() {
 }
 function showDialog(mode) {
   dialogMode = mode; paused = true;
+  $('dialog').classList.toggle('is-result', mode === 'result');
+  $('result-summary').hidden = mode !== 'result';
+  if (mode === 'result') {
+    $('result-score').textContent = game.score.toLocaleString();
+    $('result-served').textContent = `${game.served}명`;
+  }
   if (mode === 'result') document.body.classList.remove('playing');
   $('dialog-title').innerHTML = mode === 'tutorial-complete' ? '첫 라멘 완성!<br>정말 잘했어요!' : mode === 'result' ? '오늘의 영업 끝!' : mode === 'help' ? '맛있는 라멘 만드는 법' : '어서 오세요,<br>꾸리라멘입니다!';
   $('dialog-description').textContent = mode === 'tutorial-complete' ? '이제 혼자서도 만들 수 있어요. 새 영업은 90초, 0점부터 시작해요!' : mode === 'result' ? `${game.served}명의 손님에게 대접했어요. 오늘의 점수는 ${game.score.toLocaleString()}점!` : mode === 'start' && !tutorialCompleted ? '꾸리와 첫 라멘을 만들어 볼까요? 연습 중에는 시간이 줄거나 손님이 떠나지 않아요.' : '90초 동안 손님에게 맛있는 라멘을 만들어 주세요.';

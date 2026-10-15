@@ -400,3 +400,29 @@ dialog h2 { font-size: 30px; }
   #tutorial-text { font-size: 12px; line-height: 1.4; }
   .tutorial .shop { padding-top: 135px; }
 }
+
+/* Closing time celebrates the score; instructions stay in the help dialog. */
+.result-summary[hidden] { display: none; }
+.result-summary { position: relative; padding: 25px 18px 18px; margin: 20px 0 24px; border: 2px solid #d8dfc6; border-radius: 26px; background: radial-gradient(circle at 12% 15%, #e7cd8c 0 3px, transparent 4px), radial-gradient(circle at 89% 24%, #a3bea0 0 4px, transparent 5px), linear-gradient(145deg, #fff8df, #eff4e7); box-shadow: 0 5px 0 #d8d1b440; }
+.result-label { display: block; color: #7a8268; font-size: 15px; }
+.result-score-line { display: flex; align-items: baseline; justify-content: center; gap: 7px; margin: 7px 0 20px; color: var(--navy); }
+#result-score { font-family: 'Gguri Jua', sans-serif; font-weight: 400; font-size: clamp(52px, 15vw, 84px); line-height: 1.15; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; min-width: 0; }
+.result-score-line > span { font-size: 18px; flex-shrink: 0; }
+.result-guests { display: flex; align-items: center; justify-content: center; gap: 14px; padding-top: 15px; border-top: 1px dashed #cbd1ba; color: #738068; font-size: 13px; }
+#result-served { font-family: 'Gguri Jua', sans-serif; font-size: 25px; font-weight: 400; color: #5b8265; }
+.result-summary p { font-size: 12px; color: #8c8169; margin: 9px 0 0; }
+.is-result .instructions, .is-result .modal-note, .is-result .eyebrow, .is-result .modal-icon, .is-result #dialog-secondary, .is-result #dialog-description { display: none; }
+dialog.is-result { padding: 28px; }
+.is-result #dialog-title { margin: 4px 0 0; font-size: 28px; }
+.is-result #dialog-action { font-size: 18px; }
+@media (max-width: 360px), (max-height: 500px) {
+  dialog.is-result { padding: 18px; }
+  .result-summary { padding: 18px 12px 12px; margin: 14px 0 20px; }
+}
+@media (max-height: 500px) {
+  .is-result #dialog-title { font-size: 23px; }
+  #result-score { font-size: 54px; }
+  .result-score-line { margin: 4px 0 8px; }
+  .result-guests { padding-top: 8px; }
+  .is-result .result-summary p { margin: 4px 0 0; }
+}

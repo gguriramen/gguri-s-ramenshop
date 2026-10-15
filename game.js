@@ -106,6 +106,12 @@ function finishTutorial() {
 }
 function showDialog(mode) {
   dialogMode = mode; paused = true;
+  $('dialog').classList.toggle('is-result', mode === 'result');
+  $('result-summary').hidden = mode !== 'result';
+  if (mode === 'result') {
+    $('result-score').textContent = game.score.toLocaleString();
+    $('result-served').textContent = `${game.served}명`;
+  }
   if (mode === 'result') document.body.classList.remove('playing');
   $('dialog-title').innerHTML = mode === 'tutorial-complete' ? '첫 라멘 완성!<br>정말 잘했어요!' : mode === 'result' ? '오늘의 영업 끝!' : mode === 'help' ? '맛있는 라멘 만드는 법' : '어서 오세요,<br>꾸리라멘입니다!';
   $('dialog-description').textContent = mode === 'tutorial-complete' ? '이제 혼자서도 만들 수 있어요. 새 영업은 90초, 0점부터 시작해요!' : mode === 'result' ? `${game.served}명의 손님에게 대접했어요. 오늘의 점수는 ${game.score.toLocaleString()}점!` : mode === 'start' && !tutorialCompleted ? '꾸리와 첫 라멘을 만들어 볼까요? 연습 중에는 시간이 줄거나 손님이 떠나지 않아요.' : '90초 동안 손님에게 맛있는 라멘을 만들어 주세요.';
