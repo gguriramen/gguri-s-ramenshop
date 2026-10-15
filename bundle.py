@@ -14,8 +14,8 @@ def asset_uri(name):
     if not asset.is_relative_to(root / 'assets'):
         raise ValueError('Image must be under assets/')
     mime = mimetypes.guess_type(asset.name)[0]
-    if mime not in ('image/webp', 'image/png', 'image/jpeg', 'font/woff'):
-        raise ValueError('Expected a compressed raster image or bundled WOFF font')
+    if mime not in ('image/webp', 'image/png', 'image/jpeg', 'font/woff', 'font/woff2'):
+        raise ValueError('Expected a compressed raster image or bundled web font')
     return 'data:' + mime + ';base64,' + base64.b64encode(asset.read_bytes()).decode()
 
 # The sprite sheet is embedded once; individual icons reuse its CSS variable.

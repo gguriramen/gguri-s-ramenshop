@@ -28,7 +28,7 @@
 
 ## 파일과 모바일
 
-글꼴은 제목·버튼·주방 표시용 Jua와 본문용 Gowun Dodum을 사용합니다. Google Fonts의 SIL Open Font License 글꼴에서 현재 UI에 필요한 문자를 추려 WOFF로 포함했습니다. 라이선스는 `assets/Jua-OFL.txt`, `assets/GowunDodum-OFL.txt`에 있습니다. 새 문자를 추가할 때 글꼴에 없으면 시스템 글꼴로 표시됩니다.
+글꼴은 제목·버튼·주방 표시용 Jua와 본문용 Gowun Dodum을 사용합니다. Google Fonts의 SIL Open Font License 글꼴에서 튜토리얼을 포함한 현재 UI에 필요한 문자를 추려 WOFF2로 포함했습니다. 라이선스는 `assets/Jua-OFL.txt`, `assets/GowunDodum-OFL.txt`에 있습니다. 새 문자를 추가할 때 글꼴에 없으면 시스템 글꼴로 표시됩니다.
 
 냄비는 `assets/cute-pots.webp`의 동일한 형태의 빈 냄비·물·면 상태 그림을 사용합니다. 둥근 은색 몸통, 남색 손잡이, 작은 크림색 하트와 부드러운 명암을 유지합니다. 조리 게이지는 크림·연두·살구색의 둥근 막대와 하트 표시이며, 6~10초의 완성 구간은 연두색입니다. 비우기 버튼은 크림색 배경과 테두리, 눌리는 입체 효과로 식별합니다.
 
