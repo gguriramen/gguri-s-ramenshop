@@ -501,6 +501,8 @@ html.holding-ramen { overscroll-behavior: none; }
 /* Brand assets and a single-screen mobile game board. */
 .brand-logo { display: block; width: 48px; height: 48px; object-fit: contain; flex-shrink: 0; }
 .header-actions { display: flex; align-items: center; gap: 4px; }
+.header-actions #help { color: var(--navy); font-family: 'Gguri Jua', sans-serif; font-size: 14px; }
+.header-actions #help span { border-color: #93a2b2; }
 .header-actions #restart span { border: 0; padding: 0; margin: 0; }
 .header-actions #restart > span:first-child { font: 24px Arial, sans-serif; }
 .dialog-welcome { display: none; }
@@ -700,7 +702,7 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
 .drag-mode .stats strong { font-size: 30px; margin-top: 4px; }
 .drag-mode .stats small { font-size: 12px; }
 .drag-mode .kitchen { grid-template-rows: 17px minmax(70px, 1fr) clamp(100px, 20dvh, 180px) 48px; }
-.drag-mode .ingredient-tray { padding: 8px; grid-template-rows: 19px minmax(0, 1fr); gap: 5px; }
+.drag-mode .ingredient-tray { padding: 14px 8px 8px; grid-template-rows: 19px minmax(0, 1fr); gap: 5px; }
 .drag-mode .tray-label { font-size: 14px; }
 .drag-mode .tray-label small { display: inline; font-size: 10px; margin-left: 6px; }
 .drag-mode .ingredients button { font-size: 14px; padding: 5px 2px; }
@@ -711,7 +713,7 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
     grid-template-rows: 44px 64px 64px clamp(98px, 20dvh, 140px) minmax(0, 1fr);
   }
   .drag-mode .kitchen { grid-template-rows: 15px minmax(60px, 1fr) 96px 44px; padding: 5px 8px 6px; gap: 3px; }
-  .drag-mode .ingredient-tray { grid-template-rows: 16px minmax(0, 1fr); padding: 5px; gap: 3px; }
+  .drag-mode .ingredient-tray { grid-template-rows: 16px minmax(0, 1fr); padding: 10px 5px 5px; gap: 3px; }
   .drag-mode .ingredients button { padding: 2px; font-size: 12px; }
   .drag-mode .ingredients button > .sprite { width: 36px; height: 38px; margin-bottom: 2px; }
   .drag-mode .ingredients button > span:not(.sprite) { height: 38px; font-size: 31px; line-height: 38px; margin-bottom: 2px; }
@@ -737,7 +739,7 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
   .drag-mode #pots .pot-art { min-height: 28px; height: 40px; }
   .drag-mode #pots .vessel { top: calc(50% - 4px); transform: translate(-50%, -50%) scale(.7); }
   .drag-mode #pots .pot-status { min-height: 13px; font-size: 9px; }
-  .drag-mode .ingredient-tray { grid-template-rows: 14px minmax(0, 1fr); padding: 3px 5px; gap: 2px; }
+  .drag-mode .ingredient-tray { grid-template-rows: 14px minmax(0, 1fr); padding: 8px 5px 3px; gap: 2px; }
   .drag-mode .tray-label { font-size: 12px; }
   .drag-mode .tray-label small { font-size: 9px; }
   .drag-mode .ingredients button { padding: 1px; font-size: 11px; }
