@@ -190,6 +190,7 @@ function showDialog(mode) {
   hideFeedback();
   dialogMode = mode; paused = true;
   const firstVisit = mode === 'start' && !tutorialCompleted;
+  const practiceHelp = mode === 'help' && tutorialStep !== null;
   $('dialog').classList.toggle('is-first-visit', firstVisit);
   $('dialog').classList.toggle('is-result', mode === 'result');
   $('dialog').classList.toggle('is-tutorial-complete', mode === 'tutorial-complete');
@@ -200,9 +201,9 @@ function showDialog(mode) {
   }
   if (mode === 'result') document.body.classList.remove('playing');
   $('dialog-title').innerHTML = mode === 'tutorial-complete' ? '첫 라멘 완성!<br>정말 잘했어요!' : mode === 'result' ? '오늘의 영업 끝!' : mode === 'help' ? '맛있는 라멘 만드는 법' : firstVisit ? '꾸리와 첫 라멘을<br>만들어 볼까요?' : mobileServing ? '오늘도 영업 시작!' : '어서 오세요,<br>꾸리라멘입니다!';
-  $('dialog-description').textContent = mode === 'tutorial-complete' ? '이제 혼자서도 만들 수 있어요. 새 영업은 90초, 0점부터 시작해요!' : mode === 'result' ? `${game.served}명의 손님에게 대접했어요. 오늘의 점수는 ${game.score.toLocaleString()}점!` : firstVisit ? '시간 걱정 없이, 재료 넣기부터 서빙까지 함께 연습해요.' : '90초 동안 손님에게 맛있는 라멘을 만들어 주세요.';
-  $('dialog-action').textContent = mode === 'tutorial-complete' ? '진짜 영업 시작하기 →' : mode === 'help' && game.active ? '계속 플레이하기 →' : mode === 'result' ? '한 번 더 영업하기 →' : !tutorialCompleted ? '첫 라멘 연습하기 →' : '영업 시작하기 →';
-  $('dialog-secondary').textContent = firstVisit ? '바로 영업하기' : mode === 'tutorial-complete' ? '연습 한 번 더 해보기' : '첫 라멘 연습하기';
+  $('dialog-description').textContent = mode === 'tutorial-complete' ? '이제 혼자서도 만들 수 있어요. 새 영업은 90초, 0점부터 시작해요!' : mode === 'result' ? `${game.served}명의 손님에게 대접했어요. 오늘의 점수는 ${game.score.toLocaleString()}점!` : firstVisit ? '시간 걱정 없이, 재료 넣기부터 서빙까지 함께 연습해요.' : practiceHelp ? '연습을 이어가거나, 바로 영업을 시작할 수 있어요.' : '90초 동안 손님에게 맛있는 라멘을 만들어 주세요.';
+  $('dialog-action').textContent = mode === 'tutorial-complete' ? '진짜 영업 시작하기 →' : practiceHelp ? '계속 연습하기 →' : mode === 'help' && game.active ? '계속 플레이하기 →' : mode === 'result' ? '한 번 더 영업하기 →' : !tutorialCompleted ? '첫 라멘 연습하기 →' : '영업 시작하기 →';
+  $('dialog-secondary').textContent = firstVisit ? '바로 영업하기' : practiceHelp ? '영업 시작하기' : mode === 'tutorial-complete' ? '연습 한 번 더 해보기' : '첫 라멘 연습하기';
   if (!$('dialog').open) $('dialog').showModal(); render();
 }
 function resume() {
@@ -214,7 +215,10 @@ $('dialog-action').addEventListener('click', () => {
   else if (dialogMode === 'start' && !tutorialCompleted) startTutorial();
   else start();
 });
-$('dialog-secondary').addEventListener('click', () => dialogMode === 'start' && !tutorialCompleted ? start() : startTutorial());
+$('dialog-secondary').addEventListener('click', () => {
+  if ((dialogMode === 'start' && !tutorialCompleted) || (dialogMode === 'help' && tutorialStep !== null)) start();
+  else startTutorial();
+});
 $('tutorial-skip').addEventListener('click', start);
 $('dialog').addEventListener('cancel', e => { e.preventDefault(); if (dialogMode === 'help' && game.active) resume(); });
 $('help').addEventListener('click', () => showDialog('help'));
