@@ -480,3 +480,11 @@ html.holding-ramen { overscroll-behavior: none; }
 .message.error { background: #fff0df; color: #99583d; border-top: 1px solid #dfb895; font-family: 'Gguri Jua', sans-serif; font-size: 15px; }
 @keyframes mistake-cue { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-3px); } 70% { transform: translateX(3px); } }
 @media (max-width: 360px), (max-height: 500px) { .input-feedback { gap: 7px; padding: 9px; } #feedback-text { font-size: 16px; } .feedback-mark { width: 27px; height: 27px; font-size: 21px; } }
+
+/* The same visible feedback slot celebrates a served bowl without blocking play. */
+.feedback-bowl { display: none; }
+.input-feedback.is-success { border-color: #9bb89a; background: #f4fae9; color: #476d50; box-shadow: 0 5px 0 #b8cba450, 0 10px 26px #34482c25; }
+.is-success .feedback-mark { display: none; }
+.is-success .feedback-bowl { display: block; width: 68px; height: 106px; margin: -22px 0 -12px; }
+.is-success #feedback-text { font-size: 21px; }
+@media (max-width: 360px), (max-height: 500px) { .is-success .feedback-bowl { width: 58px; height: 91px; margin: -20px 0 -12px; } .is-success #feedback-text { font-size: 18px; } }

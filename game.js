@@ -19,7 +19,7 @@ let tutorialCompleted = false;
 try { tutorialCompleted = localStorage.getItem(tutorialKey) === 'yes'; } catch { /* File previews may block storage. */ }
 const mobileMedia = matchMedia('(max-width: 760px), (max-width: 950px) and (max-height: 500px), (pointer: coarse)');
 let mobileServing = mobileMedia.matches, servingDrag = null, suppressPotClickUntil = 0;
-let feedbackTimer = null, mistakeTimer = null, mistakeTarget = null;
+let feedbackTimer = null, mistakeTimer = null, mistakeTarget = null, feedbackKind = null;
 document.body.classList.toggle('drag-mode', mobileServing);
 
 function tutorialInstruction() {
@@ -48,19 +48,29 @@ for (let i = 0; i < 3; i++) {
 function hideFeedback() {
   clearTimeout(feedbackTimer); clearTimeout(mistakeTimer);
   $('input-feedback').hidden = true;
+  feedbackKind = null;
   mistakeTarget?.classList.remove('input-mistake'); mistakeTarget = null;
 }
 function tell(message, type = '', target = null) {
   $('message').textContent = message; $('message').className = `message ${type}`;
-  $('message').setAttribute('aria-live', type === 'error' ? 'off' : 'polite');
+  $('message').setAttribute('aria-live', type === 'error' || type === 'success' ? 'off' : 'polite');
   $('served-dish').hidden = type !== 'success';
-  if (type !== 'error') { hideFeedback(); return; }
+  if (type !== 'error' && type !== 'success') {
+    // Let players start the next bowl without immediately losing their reward.
+    if (feedbackKind !== 'success') hideFeedback();
+    return;
+  }
   clearTimeout(feedbackTimer);
+  clearTimeout(mistakeTimer); mistakeTarget?.classList.remove('input-mistake'); mistakeTarget = null;
+  feedbackKind = type;
+  $('input-feedback').classList.toggle('is-success', type === 'success');
+  $('input-feedback').setAttribute('role', type === 'success' ? 'status' : 'alert');
+  $('input-feedback').setAttribute('aria-live', type === 'success' ? 'polite' : 'assertive');
   $('feedback-text').textContent = message;
   $('input-feedback').style.top = $('tutorial-panel').hidden ? 'max(12px, env(safe-area-inset-top, 0px))' : `${$('tutorial-panel').getBoundingClientRect().bottom + 8}px`;
   $('input-feedback').hidden = false;
-  feedbackTimer = setTimeout(hideFeedback, 5500);
-  if (target) {
+  feedbackTimer = setTimeout(hideFeedback, type === 'success' ? 4000 : 5500);
+  if (target && type === 'error') {
     clearTimeout(mistakeTimer); mistakeTarget?.classList.remove('input-mistake');
     mistakeTarget = target;
     // Restart the short cue even if the same control is pressed repeatedly.
@@ -104,6 +114,7 @@ function render() {
 }
 function stopTutorial() {
   cancelServingDrag();
+  hideFeedback();
   tutorialStep = null; document.body.classList.remove('tutorial'); $('tutorial-panel').hidden = true;
   if (highlightedTarget) { highlightedTarget.classList.remove('tutorial-target'); highlightedTarget.removeAttribute('aria-describedby'); }
   highlightedTarget = null;
