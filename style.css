@@ -120,14 +120,16 @@ dialog > p { font-size: 12px; color: var(--muted); }
 .instructions b { color: var(--navy); margin-right: 8px; }
 .instructions strong { font-weight: 700; }
 dialog .serve { width: 100%; justify-content: center; }
+#dialog-action { border: 3px solid #2b435e; box-shadow: none; }
 #dialog-action:focus-visible {
-  outline: 3px solid transparent;
-  outline-offset: 0;
-  box-shadow: inset 0 0 0 3px #f2ce7a, 0 4px 0 #273e58;
+  outline: none;
+  border-color: #f2ce7a;
 }
 @media (forced-colors: active) {
-  #dialog-action:focus-visible { outline-color: Highlight; outline-offset: 2px; }
+  #dialog-action:focus-visible { outline: 2px solid Highlight; outline-offset: 2px; }
 }
+.is-first-visit #dialog-action { border-color: #f2ce7a; min-height: 58px; font-size: 19px; }
+.is-first-visit #dialog-secondary { border-color: transparent; margin-top: 6px; font-size: 12px; text-decoration: underline; text-underline-offset: 3px; }
 .modal-note { display: block; font-size: 10px; color: var(--muted); margin-top: 16px; }
 @keyframes steam { 0%, 100% { transform: translateY(0); opacity: .35; } 50% { transform: translateY(-7px); opacity: .9; } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
