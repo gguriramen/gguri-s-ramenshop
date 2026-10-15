@@ -71,7 +71,7 @@ function hideFeedback() {
   feedbackKind = null;
   mistakeTarget?.classList.remove('input-mistake'); mistakeTarget = null;
 }
-function tell(message, type = '', target = null) {
+function tell(message, type = '', target = null, points = null) {
   $('message').textContent = message; $('message').className = `message ${type}`;
   $('message').setAttribute('aria-live', type === 'error' || type === 'success' ? 'off' : 'polite');
   $('served-dish').hidden = type !== 'success';
@@ -86,7 +86,12 @@ function tell(message, type = '', target = null) {
   $('input-feedback').classList.toggle('is-success', type === 'success');
   $('input-feedback').setAttribute('role', type === 'success' ? 'status' : 'alert');
   $('input-feedback').setAttribute('aria-live', type === 'success' ? 'polite' : 'assertive');
-  $('feedback-text').textContent = message;
+  const hasPoints = Number.isFinite(points) && points !== 0;
+  $('feedback-score').hidden = !hasPoints;
+  $('feedback-score').textContent = hasPoints ? `${points > 0 ? '+' : '−'}${Math.abs(points)}점` : '';
+  $('feedback-score').classList.toggle('is-gain', hasPoints && points > 0);
+  // Put the score in its own badge and keep the explanation short enough for phones.
+  $('feedback-text').textContent = hasPoints ? message.replace(/\s*[+−-]\d+점\s*(?:·\s*)?/, ' ').replace(' 다음 그릇은 잘할 수 있어요.', '').trim() : message;
   $('input-feedback').style.top = $('tutorial-panel').hidden ? 'max(12px, env(safe-area-inset-top, 0px))' : `${$('tutorial-panel').getBoundingClientRect().bottom + 8}px`;
   $('input-feedback').hidden = false;
   feedbackTimer = setTimeout(hideFeedback, type === 'success' ? 4000 : 5500);
@@ -99,7 +104,6 @@ function tell(message, type = '', target = null) {
     mistakeTimer = setTimeout(() => { mistakeTarget?.classList.remove('input-mistake'); mistakeTarget = null; }, 700);
   }
 }
-$('feedback-close').addEventListener('click', hideFeedback);
 function render() {
   $('time').innerHTML = tutorialStep !== null ? '연습<small>중</small>' : `${Math.ceil(game.time)}<small>초</small>`;
   $('time').className = tutorialStep === null && game.time <= 15 ? 'urgent' : '';
@@ -285,7 +289,7 @@ function serveTo(potIndex, orderIndex) {
     tell('첫 라멘은 토끼 친구에게 내주세요. 다시 끌어다 놓아 봐요.', 'error'); return;
   }
   selectedPot = potIndex; selectedOrder = orderIndex;
-  const result = game.serve(potIndex, orderIndex); tell(result.message, result.ok ? 'success' : 'error', $('pots').children[potIndex].querySelector('button'));
+  const result = game.serve(potIndex, orderIndex); tell(result.message, result.ok ? 'success' : 'error', $('pots').children[potIndex].querySelector('button'), result.points);
   if (tutorialStep !== null && result.ok) finishTutorial(); else render();
 }
 
@@ -363,7 +367,8 @@ function frame(now) {
   const dt = (now - lastTime) / 1000; lastTime = now;
   if (game.active && !paused) {
     if (tutorialStep === null) {
-      const events = game.tick(dt); if (events.length) tell(events[0], 'error');
+      const events = game.tick(dt);
+      if (events.length) tell(events.length > 1 ? `손님 ${events.length}명이 떠났어요. 다음 주문을 준비해요!` : events[0], 'error', null, -30 * events.length);
     } else if (tutorialSteps[tutorialStep].action === 'wait') {
       // Only the practice pot cooks. The timer and customers stay frozen.
       game.pots[0].cook = Math.min(6.5, game.pots[0].cook + dt);

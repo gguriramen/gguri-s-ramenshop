@@ -63,12 +63,12 @@
       this.pots[potIndex] = this.emptyPot();
       if (reason) {
         this.combo = 0; this.score = Math.max(0, this.score - 20);
-        return {ok: false, message: reason + ' 다음 그릇은 잘할 수 있어요. −20점'};
+        return {ok: false, points: -20, message: reason + ' 다음 그릇은 잘할 수 있어요. −20점'};
       }
       this.combo++; this.served++;
       const points = 100 + Math.min(this.combo - 1, 5) * 20;
       this.score += points; this.orders[orderIndex] = this.newOrder();
-      return {ok: true, message: `맛있어요! +${points}점 · ${this.combo}연속 성공`};
+      return {ok: true, points, message: `맛있어요! +${points}점 · ${this.combo}연속 성공`};
     }
   }
   if (typeof module !== 'undefined' && module.exports) module.exports = RamenGame;

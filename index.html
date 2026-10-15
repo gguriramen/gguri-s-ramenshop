@@ -495,7 +495,6 @@ html.holding-ramen { overscroll-behavior: none; }
 .input-feedback { position: fixed; z-index: 30; left: 50%; transform: translateX(-50%); width: min(540px, calc(100% - 20px)); display: flex; align-items: center; gap: 10px; padding: 12px 10px 12px 14px; border: 2px solid #d49d7e; border-radius: 22px; background: #fff5df; color: #804e37; box-shadow: 0 5px 0 #d1aa8050, 0 10px 26px #4c302633; pointer-events: none; }
 .feedback-mark { display: grid; place-items: center; flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: #b97557; color: #fff9eb; font-family: 'Gguri Jua', sans-serif; font-size: 24px; }
 #feedback-text { flex: 1; min-width: 0; margin: 0; font-family: 'Gguri Jua', sans-serif; font-size: 18px; line-height: 1.55; word-break: keep-all; overflow-wrap: anywhere; }
-#feedback-close { flex-shrink: 0; display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid #ddbea1; border-radius: 14px; background: #fffcf0; color: #99735a; font: 25px Arial, sans-serif; pointer-events: auto; }
 .input-mistake { outline: 3px solid #c78c70 !important; outline-offset: 3px; border-radius: 16px; animation: mistake-cue .3s ease-out; }
 .message.error { background: #fff0df; color: #99583d; border-top: 1px solid #dfb895; font-family: 'Gguri Jua', sans-serif; font-size: 15px; }
 @keyframes mistake-cue { 0%, 100% { transform: translateX(0); } 30% { transform: translateX(-3px); } 70% { transform: translateX(3px); } }
@@ -818,6 +817,16 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
   .drag-mode .ingredients button > span:not(.sprite) { height: 38px; font-size: 31px; line-height: 38px; margin-bottom: 2px; }
 }
 
+/* Score changes replace the dismiss button in the notice's right-hand box. */
+.feedback-score[hidden] { display: none; }
+.feedback-score { flex-shrink: 0; display: grid; place-items: center; min-width: 80px; min-height: 44px; padding: 4px 8px; border: 2px solid #bd8669; border-radius: 12px; background: #ffebdb; color: #934e35; font-family: 'Gguri Jua', sans-serif; font-size: 24px; font-weight: 400; line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.feedback-score.is-gain { border-color: #85a687; background: #e4f2d7; color: #3e7049; }
+@media (max-width: 360px), (max-height: 600px) {
+  .feedback-score { min-width: 70px; min-height: 40px; padding: 3px 6px; font-size: 21px; }
+  .drag-mode .notice-space #feedback-text { font-size: 12px; }
+  .drag-mode .notice-space .is-success #feedback-text { font-size: 14px; }
+}
+
 </style>
 <!-- GAME STYLE END -->
 </head>
@@ -844,7 +853,7 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
     </section>
   <aside id="input-feedback" class="input-feedback" role="alert" aria-atomic="true" hidden>
     <span class="feedback-mark" aria-hidden="true">!</span><span class="feedback-bowl sprite bowl" role="img" aria-label="완성된 꾸리라멘"></span><p id="feedback-text"></p>
-    <button id="feedback-close" type="button" aria-label="안내 닫기">×</button>
+    <strong id="feedback-score" class="feedback-score" hidden></strong>
   </aside>
     </div>
     <section class="customers-section" aria-label="손님 주문">
@@ -969,12 +978,12 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
       this.pots[potIndex] = this.emptyPot();
       if (reason) {
         this.combo = 0; this.score = Math.max(0, this.score - 20);
-        return {ok: false, message: reason + ' 다음 그릇은 잘할 수 있어요. −20점'};
+        return {ok: false, points: -20, message: reason + ' 다음 그릇은 잘할 수 있어요. −20점'};
       }
       this.combo++; this.served++;
       const points = 100 + Math.min(this.combo - 1, 5) * 20;
       this.score += points; this.orders[orderIndex] = this.newOrder();
-      return {ok: true, message: `맛있어요! +${points}점 · ${this.combo}연속 성공`};
+      return {ok: true, points, message: `맛있어요! +${points}점 · ${this.combo}연속 성공`};
     }
   }
   if (typeof module !== 'undefined' && module.exports) module.exports = RamenGame;
@@ -1054,7 +1063,7 @@ function hideFeedback() {
   feedbackKind = null;
   mistakeTarget?.classList.remove('input-mistake'); mistakeTarget = null;
 }
-function tell(message, type = '', target = null) {
+function tell(message, type = '', target = null, points = null) {
   $('message').textContent = message; $('message').className = `message ${type}`;
   $('message').setAttribute('aria-live', type === 'error' || type === 'success' ? 'off' : 'polite');
   $('served-dish').hidden = type !== 'success';
@@ -1069,7 +1078,12 @@ function tell(message, type = '', target = null) {
   $('input-feedback').classList.toggle('is-success', type === 'success');
   $('input-feedback').setAttribute('role', type === 'success' ? 'status' : 'alert');
   $('input-feedback').setAttribute('aria-live', type === 'success' ? 'polite' : 'assertive');
-  $('feedback-text').textContent = message;
+  const hasPoints = Number.isFinite(points) && points !== 0;
+  $('feedback-score').hidden = !hasPoints;
+  $('feedback-score').textContent = hasPoints ? `${points > 0 ? '+' : '−'}${Math.abs(points)}점` : '';
+  $('feedback-score').classList.toggle('is-gain', hasPoints && points > 0);
+  // Put the score in its own badge and keep the explanation short enough for phones.
+  $('feedback-text').textContent = hasPoints ? message.replace(/\s*[+−-]\d+점\s*(?:·\s*)?/, ' ').replace(' 다음 그릇은 잘할 수 있어요.', '').trim() : message;
   $('input-feedback').style.top = $('tutorial-panel').hidden ? 'max(12px, env(safe-area-inset-top, 0px))' : `${$('tutorial-panel').getBoundingClientRect().bottom + 8}px`;
   $('input-feedback').hidden = false;
   feedbackTimer = setTimeout(hideFeedback, type === 'success' ? 4000 : 5500);
@@ -1082,7 +1096,6 @@ function tell(message, type = '', target = null) {
     mistakeTimer = setTimeout(() => { mistakeTarget?.classList.remove('input-mistake'); mistakeTarget = null; }, 700);
   }
 }
-$('feedback-close').addEventListener('click', hideFeedback);
 function render() {
   $('time').innerHTML = tutorialStep !== null ? '연습<small>중</small>' : `${Math.ceil(game.time)}<small>초</small>`;
   $('time').className = tutorialStep === null && game.time <= 15 ? 'urgent' : '';
@@ -1268,7 +1281,7 @@ function serveTo(potIndex, orderIndex) {
     tell('첫 라멘은 토끼 친구에게 내주세요. 다시 끌어다 놓아 봐요.', 'error'); return;
   }
   selectedPot = potIndex; selectedOrder = orderIndex;
-  const result = game.serve(potIndex, orderIndex); tell(result.message, result.ok ? 'success' : 'error', $('pots').children[potIndex].querySelector('button'));
+  const result = game.serve(potIndex, orderIndex); tell(result.message, result.ok ? 'success' : 'error', $('pots').children[potIndex].querySelector('button'), result.points);
   if (tutorialStep !== null && result.ok) finishTutorial(); else render();
 }
 
@@ -1346,7 +1359,8 @@ function frame(now) {
   const dt = (now - lastTime) / 1000; lastTime = now;
   if (game.active && !paused) {
     if (tutorialStep === null) {
-      const events = game.tick(dt); if (events.length) tell(events[0], 'error');
+      const events = game.tick(dt);
+      if (events.length) tell(events.length > 1 ? `손님 ${events.length}명이 떠났어요. 다음 주문을 준비해요!` : events[0], 'error', null, -30 * events.length);
     } else if (tutorialSteps[tutorialStep].action === 'wait') {
       // Only the practice pot cooks. The timer and customers stay frozen.
       game.pots[0].cook = Math.min(6.5, game.pots[0].cook + dt);
