@@ -674,3 +674,69 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
   .drag-mode #tutorial-title { font-size: 14px; margin-bottom: 1px; }
   .drag-mode #tutorial-text { font-size: 10px; line-height: 1.25; }
 }
+
+/* Give the reclaimed notice space to the score and draggable ingredients. */
+[data-ingredient] { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; cursor: grab; }
+.ingredient-drag, .ingredient-drag * { cursor: grabbing !important; }
+.pot-card.ingredient-hover { border-color: #709e79; background: #e3f0da; box-shadow: 0 0 0 3px #bed9b3; }
+.drag-ingredient[hidden] { display: none; }
+.drag-ingredient { position: fixed; z-index: 25; width: 64px; height: 64px; display: grid; place-items: center; border: 2px solid #c4d7ac; border-radius: 22px; background: #fffbeeef; box-shadow: 0 6px 12px #253c4533; pointer-events: none; }
+.drag-ingredient .sprite { width: 50px; height: 52px; }
+.drag-ingredient > span:not(.sprite) { font-size: 40px; line-height: 1; }
+.drag-mode .shop, .drag-mode.playing .shop, .drag-mode.tutorial .shop {
+  grid-template-rows: 48px 76px 76px clamp(110px, 22dvh, 166px) minmax(0, 1fr);
+}
+.drag-mode .stats { padding: 7px 0; border-radius: 18px; }
+.drag-mode .stats span { font-size: 11px; }
+.drag-mode .stats strong { font-size: 30px; margin-top: 4px; }
+.drag-mode .stats small { font-size: 12px; }
+.drag-mode .kitchen { grid-template-rows: 17px minmax(70px, 1fr) clamp(100px, 20dvh, 180px) 48px; }
+.drag-mode .ingredient-tray { padding: 8px; grid-template-rows: 19px minmax(0, 1fr); gap: 5px; }
+.drag-mode .tray-label { font-size: 14px; }
+.drag-mode .tray-label small { display: inline; font-size: 10px; margin-left: 6px; }
+.drag-mode .ingredients button { font-size: 14px; padding: 5px 2px; }
+.drag-mode .ingredients button > .sprite { width: clamp(38px, 11vw, 52px); height: clamp(40px, 11.5vw, 55px); margin: 0 auto 5px; }
+.drag-mode .ingredients button > span:not(.sprite) { height: 50px; font-size: 38px; line-height: 50px; margin-bottom: 5px; }
+@media (orientation: portrait) and (max-height: 700px) {
+  .drag-mode .shop, .drag-mode.playing .shop, .drag-mode.tutorial .shop {
+    grid-template-rows: 44px 64px 64px clamp(98px, 20dvh, 140px) minmax(0, 1fr);
+  }
+  .drag-mode .kitchen { grid-template-rows: 15px minmax(60px, 1fr) 96px 44px; padding: 5px 8px 6px; gap: 3px; }
+  .drag-mode .ingredient-tray { grid-template-rows: 16px minmax(0, 1fr); padding: 5px; gap: 3px; }
+  .drag-mode .ingredients button { padding: 2px; font-size: 12px; }
+  .drag-mode .ingredients button > .sprite { width: 36px; height: 38px; margin-bottom: 2px; }
+  .drag-mode .ingredients button > span:not(.sprite) { height: 38px; font-size: 31px; line-height: 38px; margin-bottom: 2px; }
+}
+@media (orientation: portrait) and (max-height: 500px), (orientation: landscape) and (max-height: 550px) {
+  .drag-mode .shop, .drag-mode.playing .shop, .drag-mode.tutorial .shop {
+    grid-template-rows: 44px 52px 48px 94px minmax(0, 1fr);
+  }
+  .drag-mode .stats { padding: 3px 0; }
+  .drag-mode .stats span { font-size: 10px; }
+  .drag-mode .stats strong { font-size: 25px; margin-top: 1px; }
+  .drag-mode .notice-space { padding: 0 8px; }
+  .drag-mode .notice-idle { font-size: 11px; padding: 2px; }
+  .drag-mode .notice-space .input-feedback { padding: 0 5px; border-radius: 14px; }
+  .drag-mode .notice-space #feedback-text { font-size: 13px; }
+  .drag-mode .notice-space .is-success #feedback-text { font-size: 15px; }
+  .drag-mode .notice-space .feedback-bowl { width: 32px; height: 50px; margin: -5px 0; }
+  .drag-mode .notice-space .tutorial-panel { padding: 2px 6px; gap: 4px; border-radius: 13px; }
+  .drag-mode #tutorial-title { font-size: 13px; margin-bottom: 1px; }
+  .drag-mode #tutorial-text { font-size: 10px; line-height: 1.15; }
+  .drag-mode .kitchen { grid-template-rows: 15px minmax(40px, 1fr) 76px 44px; padding: 4px; gap: 3px; }
+  .drag-mode #pots .pot-card { padding: 3px; gap: 2px; }
+  .drag-mode #pots .pot-art { min-height: 28px; height: 40px; }
+  .drag-mode #pots .vessel { top: calc(50% - 4px); transform: translate(-50%, -50%) scale(.7); }
+  .drag-mode #pots .pot-status { min-height: 13px; font-size: 9px; }
+  .drag-mode .ingredient-tray { grid-template-rows: 14px minmax(0, 1fr); padding: 3px 5px; gap: 2px; }
+  .drag-mode .tray-label { font-size: 12px; }
+  .drag-mode .tray-label small { font-size: 9px; }
+  .drag-mode .ingredients button { padding: 1px; font-size: 11px; }
+  .drag-mode .ingredients button > .sprite { width: 30px; height: 32px; margin-bottom: 1px; }
+  .drag-mode .ingredients button > span:not(.sprite) { height: 32px; font-size: 27px; line-height: 32px; margin-bottom: 1px; }
+}
+@media (orientation: landscape) and (max-height: 550px) {
+  .drag-mode .shop, .drag-mode.playing .shop, .drag-mode.tutorial .shop {
+    grid-template-rows: 44px 52px 52px minmax(0, 1fr);
+  }
+}
