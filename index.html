@@ -238,7 +238,13 @@ dialog .serve { width: 100%; justify-content: center; }
 /* Neighbouring atlas artwork crosses the cat/dog cells at their right edges.
    Keep the cat's upper ear intact while excluding the puppy below it. */
 .avatar.sprite.cat { clip-path: polygon(0 0, 100% 0, 100% 45%, 96% 45%, 96% 100%, 0 100%); }
-.avatar.sprite.dog { clip-path: inset(0 3% 0 0); }
+.avatar.sprite.dog {
+  /* Read x=752..1144 instead of x=768..1152, restoring the whole left ear.
+     The upper-left mask excludes the cat's ear; the right mask excludes the bowl. */
+  background-size: 391.836735% 170.666667%;
+  background-position-x: 65.734266%;
+  clip-path: polygon(3.5% 0, 99.2% 0, 99.2% 100%, 0 100%, 0 45%, 3.5% 45%);
+}
 .customer { padding-top: 8px; gap: 8px; }
 .order-name { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
 .order-name .sprite { width: 43px; height: 45px; }
@@ -332,6 +338,7 @@ h1 { font-size: 46px; letter-spacing: -.5px; line-height: 1.35; }
 .pot-food.meat { left: 0; }
 .steam { top: -29px; }
 .flame { bottom: 11px; height: 7px; width: 86px; background: #52627640; }
+.vessel > .flame { left: 22.5%; top: 84%; bottom: auto; width: 55%; height: 5%; }
 .ready .vessel { box-shadow: none; filter: drop-shadow(0 0 5px #9cc9a0a0); }
 .burnt .vessel { filter: saturate(.55) brightness(.83); }
 .pot-status { min-height: 28px; font-size: 13px; color: #8b7d67; }
@@ -722,7 +729,7 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
   .drag-mode .ingredients button > .sprite { width: 36px; height: 38px; margin-bottom: 2px; }
   .drag-mode .ingredients button > span:not(.sprite) { height: 38px; font-size: 31px; line-height: 38px; margin-bottom: 2px; }
 }
-@media (orientation: portrait) and (max-height: 500px), (orientation: landscape) and (max-height: 550px) {
+@media (orientation: portrait) and (max-height: 600px), (orientation: landscape) and (max-height: 550px) {
   .drag-mode .shop, .drag-mode.playing .shop, .drag-mode.tutorial .shop {
     grid-template-rows: 44px 52px 48px 94px minmax(0, 1fr);
   }
@@ -770,6 +777,47 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
 #dialog #dialog-welcome h1 span { color: inherit; margin: 0; }
 #dialog #dialog-welcome .eyebrow, #dialog #dialog-welcome .hero-note, #dialog #dialog-welcome .shop-title p, #dialog #dialog-welcome figcaption { display: none; }
 
+/* Reserve room for the pot, its attached burner, and the status on short screens. */
+@media (orientation: portrait) and (max-height: 600px), (orientation: landscape) and (max-height: 550px) {
+  .drag-mode #pots .pot-card { grid-template-rows: minmax(0, 1fr) 8px 10px; }
+  .drag-mode #pots .pot-art { min-height: 42px; height: 44px; }
+  .drag-mode #pots .vessel { top: calc(50% - 3px); transform: translate(-50%, -50%) scale(.57); }
+  .drag-mode #pots .cook-meter { height: 8px; border-width: 1px; }
+  .drag-mode #pots .cook-meter i { top: -3px; width: 12px; height: 12px; }
+  .drag-mode #pots .cook-meter i::after { font-size: 9px; }
+  .drag-mode #pots .meter-labels { font-size: 8px; }
+}
+@media (orientation: landscape) and (max-height: 550px) {
+  .drag-mode .shop, .drag-mode.playing .shop, .drag-mode.tutorial .shop { grid-template-rows: 44px 52px 48px minmax(0, 1fr); }
+  .drag-mode .kitchen { grid-template-rows: 15px minmax(40px, 1fr) 68px 44px; }
+  .drag-mode .ingredient-tray { padding-top: 6px; padding-bottom: 2px; }
+  .drag-mode .ingredients button > .sprite { width: 27px; height: 28px; }
+  .drag-mode .ingredients button > span:not(.sprite) { height: 28px; font-size: 24px; line-height: 28px; }
+}
+
+@media (orientation: portrait) and (min-height: 501px) and (max-height: 600px) {
+  .drag-mode .kitchen { grid-template-rows: 15px minmax(70px, 1fr) 96px 44px; }
+  .drag-mode .ingredients button > .sprite { width: 36px; height: 38px; }
+  .drag-mode .ingredients button > span:not(.sprite) { height: 38px; font-size: 31px; line-height: 38px; }
+}
+
+/* Size the complete pot assembly from the space actually available to its art. */
+.drag-mode #pots .pot-art { container-type: size; }
+.drag-mode #pots .vessel { top: calc(100% - 42px); transform: translate(-50%, -50%); }
+@container (max-height: 80px) {
+  .drag-mode #pots .vessel { top: calc(100% - 31px); transform: translate(-50%, -50%) scale(.7); }
+}
+@container (max-height: 52px) {
+  .drag-mode #pots .vessel { top: calc(100% - 24px); transform: translate(-50%, -50%) scale(.54); }
+}
+@media (orientation: portrait) and (min-height: 601px) and (max-height: 760px) {
+  .drag-mode .kitchen { grid-template-rows: 17px minmax(70px, 1fr) 112px 48px; }
+  .drag-mode .ingredient-tray { padding: 10px 5px 5px; grid-template-rows: 16px minmax(0, 1fr); gap: 3px; }
+  .drag-mode .ingredients button { padding: 2px; font-size: 12px; }
+  .drag-mode .ingredients button > .sprite { width: 36px; height: 38px; margin-bottom: 2px; }
+  .drag-mode .ingredients button > span:not(.sprite) { height: 38px; font-size: 31px; line-height: 38px; margin-bottom: 2px; }
+}
+
 </style>
 <!-- GAME STYLE END -->
 </head>
@@ -810,9 +858,9 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
     <section class="kitchen" aria-label="조리대">
       <div class="section-label"><h2>꾸리의 주방</h2><span>재료를 냄비로 끌어 주세요</span></div>
       <div id="pots" class="pots">
-<div class="pot-card selected"><button class="pot-select" disabled aria-label="1번 냄비 선택" aria-pressed="true"><span class="pot-number">냄비 1</span><span class="pot-art"><span class="vessel"><span class="broth"><span class="pot-noodles sprite noodles" aria-hidden="true"></span><span class="steam" aria-hidden="true">〰〰</span><span class="pot-food"></span></span></span><span class="flame" aria-hidden="true"></span></span><span class="pot-status">물부터 넣어 주세요</span></button><div class="cook-meter"><i style="left:0%"></i></div><div class="meter-labels"><span>덜 익음</span><span>딱 좋아!</span><span>불음</span></div></div>
-<div class="pot-card"><button class="pot-select" disabled aria-label="2번 냄비 선택" aria-pressed="false"><span class="pot-number">냄비 2</span><span class="pot-art"><span class="vessel"><span class="broth"><span class="pot-noodles sprite noodles" aria-hidden="true"></span><span class="steam" aria-hidden="true">〰〰</span><span class="pot-food"></span></span></span><span class="flame" aria-hidden="true"></span></span><span class="pot-status">물부터 넣어 주세요</span></button><div class="cook-meter"><i style="left:0%"></i></div><div class="meter-labels"><span>덜 익음</span><span>딱 좋아!</span><span>불음</span></div></div>
-<div class="pot-card"><button class="pot-select" disabled aria-label="3번 냄비 선택" aria-pressed="false"><span class="pot-number">냄비 3</span><span class="pot-art"><span class="vessel"><span class="broth"><span class="pot-noodles sprite noodles" aria-hidden="true"></span><span class="steam" aria-hidden="true">〰〰</span><span class="pot-food"></span></span></span><span class="flame" aria-hidden="true"></span></span><span class="pot-status">물부터 넣어 주세요</span></button><div class="cook-meter"><i style="left:0%"></i></div><div class="meter-labels"><span>덜 익음</span><span>딱 좋아!</span><span>불음</span></div></div>
+<div class="pot-card selected"><button class="pot-select" disabled aria-label="1번 냄비 선택" aria-pressed="true"><span class="pot-number">냄비 1</span><span class="pot-art"><span class="vessel"><span class="broth"><span class="pot-noodles sprite noodles" aria-hidden="true"></span><span class="steam" aria-hidden="true">〰〰</span><span class="pot-food"></span></span><span class="flame" aria-hidden="true"></span></span></span><span class="pot-status">물부터 넣어 주세요</span></button><div class="cook-meter"><i style="left:0%"></i></div><div class="meter-labels"><span>덜 익음</span><span>딱 좋아!</span><span>불음</span></div></div>
+<div class="pot-card"><button class="pot-select" disabled aria-label="2번 냄비 선택" aria-pressed="false"><span class="pot-number">냄비 2</span><span class="pot-art"><span class="vessel"><span class="broth"><span class="pot-noodles sprite noodles" aria-hidden="true"></span><span class="steam" aria-hidden="true">〰〰</span><span class="pot-food"></span></span><span class="flame" aria-hidden="true"></span></span></span><span class="pot-status">물부터 넣어 주세요</span></button><div class="cook-meter"><i style="left:0%"></i></div><div class="meter-labels"><span>덜 익음</span><span>딱 좋아!</span><span>불음</span></div></div>
+<div class="pot-card"><button class="pot-select" disabled aria-label="3번 냄비 선택" aria-pressed="false"><span class="pot-number">냄비 3</span><span class="pot-art"><span class="vessel"><span class="broth"><span class="pot-noodles sprite noodles" aria-hidden="true"></span><span class="steam" aria-hidden="true">〰〰</span><span class="pot-food"></span></span><span class="flame" aria-hidden="true"></span></span></span><span class="pot-status">물부터 넣어 주세요</span></button><div class="cook-meter"><i style="left:0%"></i></div><div class="meter-labels"><span>덜 익음</span><span>딱 좋아!</span><span>불음</span></div></div>
 </div>
       <div class="ingredient-tray">
         <div class="tray-label">재료 바구니<small>재료를 냄비로 끌어 주세요</small></div>
