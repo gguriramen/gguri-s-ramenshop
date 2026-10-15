@@ -21,11 +21,27 @@ const mobileMedia = matchMedia('(max-width: 760px), (max-width: 950px) and (max-
 let mobileServing = mobileMedia.matches, servingDrag = null, suppressPotClickUntil = 0;
 let feedbackTimer = null, mistakeTimer = null, mistakeTarget = null, feedbackKind = null;
 document.body.classList.toggle('drag-mode', mobileServing);
+const welcomeHero = document.querySelector('#dialog-welcome .hero-grid');
+function placeWelcome() {
+  document.documentElement.classList.toggle('mobile-board', mobileServing);
+  if (mobileServing) $('dialog-welcome').append(welcomeHero);
+  else document.querySelector('.shopfront').insertBefore(welcomeHero, document.querySelector('.stats'));
+}
+placeWelcome();
 
 function tutorialInstruction() {
   const step = tutorialSteps[tutorialStep];
-  if (mobileServing && step.action === 'pot') return {...step, target: '#pots .pot-art'};
-  return mobileServing && step.action === 'serve' ? {...step, target: '#pots .pot-art', text: '1번 냄비의 라멘을 누른 채 위쪽 토끼 친구에게 끌어다 놓아 주세요.'} : step;
+  if (!mobileServing) return step;
+  const copy = {
+    order: '달걀 라멘을 주문한 토끼 친구를 눌러 주세요.',
+    pot: '왼쪽 냄비를 눌러 첫 라멘을 만들어요.',
+    water: '물 버튼을 눌러 냄비에 물을 부어요.',
+    noodles: '물 다음은 면! 노란 면 버튼을 눌러 주세요.',
+    egg: '토끼 친구가 고른 달걀을 넣어 주세요.',
+    wait: '초록색은 6~10초! 연습에서는 면이 불지 않아요.',
+    serve: '라멘을 누른 채 토끼 친구에게 끌어다 놓아요.'
+  };
+  return {...step, text: copy[step.action], target: ['pot', 'serve'].includes(step.action) ? '#pots .pot-art' : step.target};
 }
 
 function canUse(action) {
@@ -130,18 +146,13 @@ function focusTutorialTarget() {
   // The cooking meter is not interactive, so focus its pot instead.
   const focusable = target.matches('button') ? target : target.closest('.pot-card').querySelector('button');
   if (!focusable.disabled) focusable.focus({preventScroll: true});
+  if (mobileServing) return;
   target.scrollIntoView({block: 'center', behavior: 'auto'});
-  if (mobileServing && !target.closest('#customers')) {
-    const top = $('customers').closest('section').getBoundingClientRect().bottom + 10;
-    const bottom = innerHeight - document.querySelector('.action-row').getBoundingClientRect().height - 10;
-    const bounds = target.getBoundingClientRect();
-    window.scrollBy(0, bounds.top + bounds.height / 2 - (top + bottom) / 2);
-  }
 }
 function updateTutorial() {
   if (highlightedTarget) { highlightedTarget.classList.remove('tutorial-target'); highlightedTarget.removeAttribute('aria-describedby'); }
   const step = tutorialInstruction();
-  $('tutorial-progress').textContent = `꾸리와 첫 라멘 · ${tutorialStep + 1} / ${tutorialSteps.length}`;
+  $('tutorial-progress').textContent = mobileServing ? `${tutorialStep + 1} / ${tutorialSteps.length}` : `꾸리와 첫 라멘 · ${tutorialStep + 1} / ${tutorialSteps.length}`;
   $('tutorial-title').textContent = step.title; $('tutorial-text').textContent = step.text;
   highlightedTarget = document.querySelector(step.target);
   highlightedTarget.classList.add('tutorial-target'); highlightedTarget.setAttribute('aria-describedby', 'tutorial-text');
@@ -166,13 +177,14 @@ function showDialog(mode) {
   hideFeedback();
   dialogMode = mode; paused = true;
   $('dialog').classList.toggle('is-result', mode === 'result');
+  $('dialog').classList.toggle('is-tutorial-complete', mode === 'tutorial-complete');
   $('result-summary').hidden = mode !== 'result';
   if (mode === 'result') {
     $('result-score').textContent = game.score.toLocaleString();
     $('result-served').textContent = `${game.served}명`;
   }
   if (mode === 'result') document.body.classList.remove('playing');
-  $('dialog-title').innerHTML = mode === 'tutorial-complete' ? '첫 라멘 완성!<br>정말 잘했어요!' : mode === 'result' ? '오늘의 영업 끝!' : mode === 'help' ? '맛있는 라멘 만드는 법' : '어서 오세요,<br>꾸리라멘입니다!';
+  $('dialog-title').innerHTML = mode === 'tutorial-complete' ? '첫 라멘 완성!<br>정말 잘했어요!' : mode === 'result' ? '오늘의 영업 끝!' : mode === 'help' ? '맛있는 라멘 만드는 법' : mobileServing ? '오늘도 영업 시작!' : '어서 오세요,<br>꾸리라멘입니다!';
   $('dialog-description').textContent = mode === 'tutorial-complete' ? '이제 혼자서도 만들 수 있어요. 새 영업은 90초, 0점부터 시작해요!' : mode === 'result' ? `${game.served}명의 손님에게 대접했어요. 오늘의 점수는 ${game.score.toLocaleString()}점!` : mode === 'start' && !tutorialCompleted ? '꾸리와 첫 라멘을 만들어 볼까요? 연습 중에는 시간이 줄거나 손님이 떠나지 않아요.' : '90초 동안 손님에게 맛있는 라멘을 만들어 주세요.';
   $('dialog-action').textContent = mode === 'tutorial-complete' ? '진짜 영업 시작하기 →' : mode === 'help' && game.active ? '계속 플레이하기 →' : mode === 'result' ? '한 번 더 영업하기 →' : !tutorialCompleted ? '첫 라멘 함께 만들기 →' : '영업 시작하기 →';
   $('dialog-secondary').textContent = mode === 'start' && !tutorialCompleted ? '연습 건너뛰고 바로 영업하기' : mode === 'tutorial-complete' ? '연습 한 번 더 해보기' : '첫 라멘 연습하기';
@@ -217,7 +229,7 @@ function serveTo(potIndex, orderIndex) {
 }
 
 // Pointer events handle both phone touch and narrow-screen mouse dragging.
-// The whole pot card owns a prepared-bowl gesture; the rest of the page scrolls.
+// The whole pot card owns a prepared-bowl gesture on the fixed mobile board.
 function beginServingDrag(event, potIndex) {
   const pot = game.pots[potIndex];
   if (!mobileServing || servingDrag || !event.isPrimary || event.button !== 0 || !canUse('serve') || !pot.noodles || !pot.topping || (tutorialStep !== null && potIndex !== 0)) return;
@@ -272,6 +284,7 @@ document.addEventListener('pointercancel', event => { if (event.pointerId === se
 document.addEventListener('lostpointercapture', event => { if (event.pointerId === servingDrag?.id) cancelServingDrag(); });
 mobileMedia.addEventListener('change', () => {
   cancelServingDrag(); mobileServing = mobileMedia.matches; document.body.classList.toggle('drag-mode', mobileServing);
+  placeWelcome();
   if (tutorialStep !== null && !paused) updateTutorial(); else render();
 });
 document.addEventListener('keydown', e => {

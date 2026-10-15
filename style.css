@@ -488,3 +488,142 @@ html.holding-ramen { overscroll-behavior: none; }
 .is-success .feedback-bowl { display: block; width: 68px; height: 106px; margin: -22px 0 -12px; }
 .is-success #feedback-text { font-size: 21px; }
 @media (max-width: 360px), (max-height: 500px) { .is-success .feedback-bowl { width: 58px; height: 91px; margin: -20px 0 -12px; } .is-success #feedback-text { font-size: 18px; } }
+
+/* Brand assets and a single-screen mobile game board. */
+.brand-logo { display: block; width: 48px; height: 48px; object-fit: contain; flex-shrink: 0; }
+.header-actions { display: flex; align-items: center; gap: 4px; }
+.header-actions #restart span { border: 0; padding: 0; margin: 0; }
+.header-actions #restart > span:first-child { font: 24px Arial, sans-serif; }
+.dialog-welcome { display: none; }
+html.mobile-board { height: 100%; overflow: hidden; overscroll-behavior: none; }
+body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-behavior: none; }
+.drag-mode .shop, .drag-mode.playing .shop {
+  width: 100%; max-width: 1000px; height: 100vh; height: 100dvh; margin: 0 auto; border: 0; border-radius: 0;
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'header' 'stats' 'customers' 'kitchen';
+  grid-template-rows: 48px 46px clamp(110px, 25dvh, 166px) minmax(0, 1fr);
+}
+.drag-mode .topbar { grid-area: header; padding: 0 10px; gap: 5px; min-width: 0; }
+.drag-mode .brand { gap: 7px; font-size: 21px; letter-spacing: 0; line-height: 1.1; }
+.drag-mode .brand-logo { width: 44px; height: 44px; }
+.drag-mode .brand small { display: block; margin-top: 4px; font-size: 8px; line-height: 1; letter-spacing: 1.1px; }
+.drag-mode .header-actions .quiet { min-width: 40px; min-height: 44px; padding: 4px 5px; font-size: 11px; }
+.drag-mode .header-actions .restart-label { display: none; }
+.drag-mode .shopfront { grid-area: stats; padding: 0 10px 4px; border: 0; min-width: 0; }
+.drag-mode .awning { display: none; }
+.drag-mode .stats { width: 100%; height: 100%; max-width: none; margin: 0; padding: 3px 0; border-radius: 14px; box-shadow: none; align-items: center; }
+.drag-mode .stats span { font-size: 9px; line-height: 1.15; }
+.drag-mode .stats strong { font-size: 22px; line-height: 1.15; margin-top: 1px; }
+.drag-mode .stats small { font-size: 10px; }
+.drag-mode .customers-section, .drag-mode.playing .customers-section {
+  grid-area: customers; position: static; top: auto; z-index: auto; min-height: 0; padding: 5px 10px 7px;
+  display: grid; grid-template-rows: 18px minmax(0, 1fr); gap: 3px; box-shadow: none;
+}
+.drag-mode .section-label { margin: 0; gap: 5px; min-width: 0; }
+.drag-mode .section-label h2 { font-size: 15px; }
+.drag-mode .section-label > span { font-size: 9px; line-height: 1.2; }
+.drag-mode #customers { min-height: 0; gap: 6px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.drag-mode #customers .customer { min-height: 0; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 0; padding: 2px 3px 12px; border-radius: 17px; }
+.drag-mode #customers .avatar.sprite { width: clamp(30px, 7dvh, 56px); height: auto; aspect-ratio: 384 / 600; }
+.drag-mode #customers .order-meta, .drag-mode #customers br { display: none; }
+.drag-mode #customers .order-name { display: flex; flex-direction: row; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0 2px; font-size: 11px; line-height: 1.2; }
+.drag-mode #customers .order-name .sprite { width: 20px; height: 21px; }
+.drag-mode #customers .patience { left: 7px; right: 7px; bottom: 5px; height: 5px; }
+.drag-mode .kitchen {
+  grid-area: kitchen; min-height: 0; padding: 6px 10px 8px; border-top-width: 3px; display: grid;
+  grid-template-rows: 17px minmax(60px, 1fr) 76px 48px; gap: 5px;
+}
+.drag-mode #pots { min-height: 0; gap: 6px; }
+.drag-mode #pots .pot-card { min-height: 0; padding: 5px 3px 7px; border-radius: 20px; display: grid; grid-template-rows: minmax(0, 1fr) 12px 12px; gap: 4px; }
+.drag-mode #pots .pot-select { min-width: 0; max-width: 100%; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0; }
+.drag-mode #pots .pot-number { display: none; }
+.drag-mode #pots .pot-art { width: 100%; height: clamp(56px, 12dvh, 110px); margin: 0; flex-shrink: 1; min-height: 40px; }
+.drag-mode #pots .vessel { position: absolute; width: 104px; height: 104px; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.drag-mode #pots .pot-status { font-size: 11px; line-height: 1.2; min-height: 22px; margin: 0; }
+.drag-mode #pots .can-drag::after { content: none; }
+.drag-mode #pots .cook-meter { height: 12px; margin: 0 5px; border-width: 2px; }
+.drag-mode #pots .cook-meter i { top: -5px; width: 17px; height: 19px; }
+.drag-mode #pots .meter-labels { margin: 0; font-size: 9px; line-height: 1.2; gap: 0; }
+.drag-mode .ingredient-tray { min-height: 0; margin: 0; padding: 4px 6px; display: grid; grid-template-rows: 13px minmax(0, 1fr); gap: 2px; border-radius: 18px; box-shadow: 0 2px 0 #785a3b22; }
+.drag-mode .tray-label { margin: 0; font-size: 12px; line-height: 1.1; }
+.drag-mode .tray-label small { display: none; }
+.drag-mode .ingredients { min-height: 0; gap: 5px; }
+.drag-mode .ingredients button { min-height: 44px; padding: 1px 2px; border-radius: 13px; font-size: 11px; line-height: 1.1; box-shadow: 0 2px 0 #b4a184; }
+.drag-mode .ingredients button > .sprite { width: 32px; height: 34px; margin: 0 auto; }
+.drag-mode .ingredients button > span:not(.sprite) { height: 34px; margin: 0; font-size: 27px; line-height: 34px; }
+.drag-mode .ingredients kbd { display: none; }
+.drag-mode .action-row {
+  position: static; z-index: auto; min-height: 0; margin: 0; padding: 0; border: 0; box-shadow: none; background: transparent;
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); grid-template-rows: minmax(0, 1fr); gap: 6px;
+}
+.drag-mode #serving-target { display: none; }
+.drag-mode .action-row #clear { grid-row: 1; grid-column: 1; min-height: 44px; height: 100%; padding: 3px 5px; font-size: 12px; border-radius: 15px; }
+.drag-mode .action-row .drag-hint { grid-row: 1; grid-column: 2; font-size: 12px; color: #fff9e9; text-shadow: 0 1px 1px #725239; }
+.drag-mode #serve:focus-visible { grid-row: 1; }
+.drag-mode #message { position: fixed; top: 0; left: 0; width: 1px; height: 1px; min-height: 0; padding: 0; border: 0; margin: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.drag-mode #served-dish, .drag-mode footer, .drag-mode .preview-notice { display: none; }
+.drag-mode .tutorial-panel { grid-area: coach; position: static; left: auto; top: auto; transform: none; width: auto; margin: 2px 8px 4px; padding: 5px 8px; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 68px; align-items: center; gap: 6px; border-radius: 17px; box-shadow: 0 2px 0 #c1ceb1; }
+.drag-mode .tutorial-panel[hidden] { display: none; }
+.drag-mode .tutorial-panel > [role='status'] { grid-column: 1; grid-row: 1; min-width: 0; }
+.drag-mode .tutorial-panel .tutorial-top { grid-column: 2; grid-row: 1; display: flex; flex-direction: column; gap: 0; align-items: stretch; }
+.drag-mode .tutorial-panel #tutorial-progress { display: block; font-size: 9px; text-align: center; }
+.drag-mode .tutorial-panel #tutorial-skip { min-height: 36px; padding: 2px; font-size: 10px; border-radius: 11px; }
+.drag-mode #tutorial-title { font-size: 18px; line-height: 1.2; margin: 0 0 3px; }
+.drag-mode #tutorial-text { font-size: 12px; line-height: 1.35; }
+.drag-mode.tutorial .shop { grid-template-areas: 'header' 'coach' 'stats' 'customers' 'kitchen'; grid-template-rows: 44px 74px 40px clamp(92px, 22dvh, 136px) minmax(0, 1fr); }
+.drag-mode.tutorial #customers .avatar.sprite { width: clamp(25px, 5.5dvh, 42px); }
+.drag-mode .tutorial-target { outline-width: 3px !important; outline-offset: 1px; box-shadow: 0 0 0 3px #c9e4a780 !important; }
+/* The full welcome scene lives in the instructions on phones. */
+.drag-mode #dialog-welcome { display: block; }
+.drag-mode #dialog .modal-icon, .drag-mode #dialog > .eyebrow { display: none; }
+.drag-mode #dialog.is-result #dialog-welcome, .drag-mode #dialog.is-tutorial-complete #dialog-welcome { display: none; }
+.drag-mode #dialog-welcome .hero-grid { display: grid; grid-template-columns: 1fr 1.05fr; gap: 10px; align-items: center; }
+.drag-mode #dialog-welcome .shop-title { padding: 0; text-align: left; }
+.drag-mode #dialog-welcome .eyebrow { font-size: 7px; letter-spacing: 1px; }
+.drag-mode #dialog-welcome h1 { font-size: 25px; line-height: 1.25; margin: 7px 0; }
+.drag-mode #dialog-welcome h1 br { display: block; }
+.drag-mode #dialog-welcome h1 span { margin: 0; }
+.drag-mode #dialog-welcome .shop-title p { display: block; font-size: 10px; line-height: 1.5; }
+.drag-mode #dialog-welcome .shop-title p br { display: none; }
+.drag-mode #dialog-welcome .hero-note, .drag-mode #dialog-welcome figcaption { display: none; }
+.drag-mode #dialog-welcome .hero-art { width: 100%; margin: 0; border-width: 2px; border-radius: 12px; }
+.drag-mode #dialog-welcome .hero-art img { width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: contain; }
+.drag-mode #dialog h2 { font-size: 24px; margin: 12px 0 7px; }
+.drag-mode #dialog > p { margin: 7px 0; font-size: 11px; }
+.drag-mode #dialog .instructions { margin: 12px 0; padding: 7px 12px; }
+.drag-mode #dialog .instructions p { margin: 7px 0; font-size: 11px; }
+.drag-mode #dialog .modal-note { font-size: 9px; margin-top: 10px; }
+@media (max-height: 600px) {
+  .drag-mode .shop, .drag-mode.playing .shop { grid-template-rows: 44px 42px 108px minmax(0, 1fr); }
+  .drag-mode .brand-logo { width: 40px; height: 40px; }
+  .drag-mode .brand { font-size: 19px; }
+  .drag-mode #customers .avatar.sprite { width: 30px; }
+  .drag-mode .kitchen { grid-template-rows: 15px minmax(54px, 1fr) 64px 44px; gap: 3px; padding: 5px 8px 6px; }
+  .drag-mode #pots .pot-art { height: 58px; }
+  .drag-mode #pots .pot-status { font-size: 10px; min-height: 22px; }
+  .drag-mode .ingredients button > .sprite { width: 27px; height: 28px; }
+  .drag-mode .ingredients button > span:not(.sprite) { height: 28px; font-size: 24px; line-height: 28px; }
+  .drag-mode .ingredient-tray { grid-template-rows: 11px minmax(0, 1fr); gap: 1px; padding: 3px 5px; }
+  .drag-mode .tray-label { font-size: 11px; }
+  .drag-mode.tutorial .shop { grid-template-rows: 42px 68px 38px 94px minmax(0, 1fr); }
+  .drag-mode.tutorial #customers .avatar.sprite { width: 23px; }
+  .drag-mode #tutorial-title { font-size: 16px; }
+  .drag-mode #tutorial-text { font-size: 11px; }
+}
+@media (orientation: landscape) and (max-height: 550px) {
+  .drag-mode .shop, .drag-mode.playing .shop {
+    grid-template-columns: minmax(200px, .85fr) minmax(0, 1.65fr); grid-template-areas: 'header header' 'stats stats' 'customers kitchen'; grid-template-rows: 44px 40px minmax(0, 1fr);
+  }
+  .drag-mode .shopfront { padding-bottom: 3px; }
+  .drag-mode .customers-section, .drag-mode.playing .customers-section { padding: 5px 6px 8px; }
+  .drag-mode #customers { grid-template-columns: minmax(0, 1fr); grid-template-rows: repeat(3, minmax(0, 1fr)); }
+  .drag-mode #customers .customer { flex-direction: row; gap: 7px; padding: 2px 6px 9px; }
+  .drag-mode #customers .avatar.sprite, .drag-mode.tutorial #customers .avatar.sprite { width: 30px; }
+  .drag-mode #customers .order-name { flex-direction: row; font-size: 12px; }
+  .drag-mode .customers-section .section-label > span { display: none; }
+  .drag-mode .kitchen { border-top-width: 0; border-left: 3px solid #987754; grid-template-rows: 15px minmax(54px, 1fr) 64px 44px; }
+  .drag-mode.tutorial .shop { grid-template-areas: 'header header' 'coach coach' 'stats stats' 'customers kitchen'; grid-template-rows: 42px 62px 36px minmax(0, 1fr); }
+  .drag-mode .tutorial-panel { margin: 1px 8px 3px; }
+}
+.drag-mode .header-actions .quiet { min-width: 44px; }
