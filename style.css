@@ -427,8 +427,8 @@ dialog.is-result { padding: 28px; }
   .is-result .result-summary p { margin: 4px 0 0; }
 }
 
-/* Phone serving uses a captured pointer gesture and a reachable drop tray. */
-.drag-hint, .touch-instructions, .drag-tray[hidden], .drag-bowl[hidden] { display: none; }
+/* Phone serving uses a captured gesture directly to the original friends. */
+.drag-hint, .touch-instructions, .drag-bowl[hidden] { display: none; }
 .drag-mode .touch-instructions { display: block; }
 .drag-mode .drag-hint { display: block; margin: 0; color: #6b846e; font-family: 'Gguri Jua', sans-serif; font-size: 14px; line-height: 1.45; text-align: center; }
 .drag-mode .action-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); }
@@ -441,19 +441,31 @@ dialog.is-result { padding: 28px; }
 .drag-mode .can-drag { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; cursor: grab; border-radius: 18px; }
 .can-drag::after { content: '끌어서 내기 ↗'; position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-family: 'Gguri Jua', sans-serif; font-size: 11px; color: #4f775e; background: #edf4e4; border: 1px solid #bdd1b4; border-radius: 99px; padding: 3px 7px; }
 .serving-drag, .serving-drag * { cursor: grabbing !important; }
-.drag-tray { position: fixed; z-index: 12; left: 50%; transform: translateX(-50%); width: min(520px, calc(100% - 16px)); padding: 7px 8px 9px; border: 2px solid #9bbb9d; border-radius: 22px; background: #fffbee; box-shadow: 0 6px 22px #253c4530; }
-.drag-tray > p { margin: 0 0 5px; text-align: center; font-size: 12px; color: #5e7f63; }
-#drag-friends { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-.drag-tray .customer { flex-direction: column; justify-content: center; gap: 0; padding: 4px 2px 6px; min-height: 96px; border-radius: 16px; }
-.drag-tray .avatar.sprite { width: 35px; height: 54px; }
-.drag-tray .order-meta, .drag-tray br, .drag-tray .patience { display: none; }
-.drag-tray .order-name { flex-direction: row; align-items: center; justify-content: center; flex-wrap: wrap; font-size: 11px; }
-.drag-tray .order-name .sprite { width: 25px; height: 26px; }
 .customer.drop-hover { border-color: #709e79; background: #e3f0da; box-shadow: 0 0 0 3px #bed9b3; }
 .drag-bowl { position: fixed; z-index: 20; width: 96px; height: 150px; pointer-events: none; filter: drop-shadow(0 5px 5px #253c4540); }
+
+
+/* Reserve the complete pot card for cooking gestures, not browser panning. */
+.drag-mode .pot-card { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+html.holding-ramen { overscroll-behavior: none; }
+.holding-ramen body { overscroll-behavior: none; }
+.drag-mode.playing .shop { overflow: clip; }
+.drag-mode.playing .customers-section { position: sticky; top: var(--customer-top, 0px); z-index: 6; background: var(--cream); box-shadow: 0 4px 8px #49342b12; }
+.drag-mode .drag-hint, #tutorial-text { word-break: keep-all; }
+@media (max-height: 700px) {
+  .drag-mode.playing .customers-section { padding-top: 6px; padding-bottom: 8px; }
+  .drag-mode.playing .customers-section .section-label { margin-bottom: 5px; }
+  .drag-mode.playing .customer { flex-direction: row; padding: 6px 4px 15px; gap: 3px; }
+  .drag-mode.playing .customer .avatar.sprite { width: 30px; height: 47px; }
+  .drag-mode.playing .customer .order-meta { display: none; }
+  .drag-mode.playing .customer .order-name { font-size: 10px; }
+}
+
+@media (max-height: 500px) { .drag-mode.playing .pot-art { height: 80px; } }
+/* In landscape keep the coach in one row so it cannot cover the cooking area. */
 @media (max-height: 500px) {
-  .drag-tray { padding: 4px 6px 6px; }
-  .drag-tray > p { margin-bottom: 2px; font-size: 10px; }
-  .drag-tray .customer { min-height: 70px; }
-  .drag-tray .avatar.sprite { width: 26px; height: 40px; }
+  .tutorial-panel { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; }
+  .tutorial-panel .tutorial-top { grid-column: 2; grid-row: 1; }
+  .tutorial-panel > [role="status"] { grid-column: 1; grid-row: 1; }
+  .tutorial-panel #tutorial-progress { display: none; }
 }

@@ -436,8 +436,8 @@ dialog.is-result { padding: 28px; }
   .is-result .result-summary p { margin: 4px 0 0; }
 }
 
-/* Phone serving uses a captured pointer gesture and a reachable drop tray. */
-.drag-hint, .touch-instructions, .drag-tray[hidden], .drag-bowl[hidden] { display: none; }
+/* Phone serving uses a captured gesture directly to the original friends. */
+.drag-hint, .touch-instructions, .drag-bowl[hidden] { display: none; }
 .drag-mode .touch-instructions { display: block; }
 .drag-mode .drag-hint { display: block; margin: 0; color: #6b846e; font-family: 'Gguri Jua', sans-serif; font-size: 14px; line-height: 1.45; text-align: center; }
 .drag-mode .action-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); }
@@ -450,21 +450,33 @@ dialog.is-result { padding: 28px; }
 .drag-mode .can-drag { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; cursor: grab; border-radius: 18px; }
 .can-drag::after { content: '끌어서 내기 ↗'; position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-family: 'Gguri Jua', sans-serif; font-size: 11px; color: #4f775e; background: #edf4e4; border: 1px solid #bdd1b4; border-radius: 99px; padding: 3px 7px; }
 .serving-drag, .serving-drag * { cursor: grabbing !important; }
-.drag-tray { position: fixed; z-index: 12; left: 50%; transform: translateX(-50%); width: min(520px, calc(100% - 16px)); padding: 7px 8px 9px; border: 2px solid #9bbb9d; border-radius: 22px; background: #fffbee; box-shadow: 0 6px 22px #253c4530; }
-.drag-tray > p { margin: 0 0 5px; text-align: center; font-size: 12px; color: #5e7f63; }
-#drag-friends { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
-.drag-tray .customer { flex-direction: column; justify-content: center; gap: 0; padding: 4px 2px 6px; min-height: 96px; border-radius: 16px; }
-.drag-tray .avatar.sprite { width: 35px; height: 54px; }
-.drag-tray .order-meta, .drag-tray br, .drag-tray .patience { display: none; }
-.drag-tray .order-name { flex-direction: row; align-items: center; justify-content: center; flex-wrap: wrap; font-size: 11px; }
-.drag-tray .order-name .sprite { width: 25px; height: 26px; }
 .customer.drop-hover { border-color: #709e79; background: #e3f0da; box-shadow: 0 0 0 3px #bed9b3; }
 .drag-bowl { position: fixed; z-index: 20; width: 96px; height: 150px; pointer-events: none; filter: drop-shadow(0 5px 5px #253c4540); }
+
+
+/* Reserve the complete pot card for cooking gestures, not browser panning. */
+.drag-mode .pot-card { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+html.holding-ramen { overscroll-behavior: none; }
+.holding-ramen body { overscroll-behavior: none; }
+.drag-mode.playing .shop { overflow: clip; }
+.drag-mode.playing .customers-section { position: sticky; top: var(--customer-top, 0px); z-index: 6; background: var(--cream); box-shadow: 0 4px 8px #49342b12; }
+.drag-mode .drag-hint, #tutorial-text { word-break: keep-all; }
+@media (max-height: 700px) {
+  .drag-mode.playing .customers-section { padding-top: 6px; padding-bottom: 8px; }
+  .drag-mode.playing .customers-section .section-label { margin-bottom: 5px; }
+  .drag-mode.playing .customer { flex-direction: row; padding: 6px 4px 15px; gap: 3px; }
+  .drag-mode.playing .customer .avatar.sprite { width: 30px; height: 47px; }
+  .drag-mode.playing .customer .order-meta { display: none; }
+  .drag-mode.playing .customer .order-name { font-size: 10px; }
+}
+
+@media (max-height: 500px) { .drag-mode.playing .pot-art { height: 80px; } }
+/* In landscape keep the coach in one row so it cannot cover the cooking area. */
 @media (max-height: 500px) {
-  .drag-tray { padding: 4px 6px 6px; }
-  .drag-tray > p { margin-bottom: 2px; font-size: 10px; }
-  .drag-tray .customer { min-height: 70px; }
-  .drag-tray .avatar.sprite { width: 26px; height: 40px; }
+  .tutorial-panel { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px; }
+  .tutorial-panel .tutorial-top { grid-column: 2; grid-row: 1; }
+  .tutorial-panel > [role="status"] { grid-column: 1; grid-row: 1; }
+  .tutorial-panel #tutorial-progress { display: none; }
 }
 
 </style>
@@ -524,7 +536,6 @@ dialog.is-result { padding: 28px; }
     <p id="message" class="message" role="status" aria-live="polite">앞치마를 두르고, 오늘의 영업을 시작해 볼까요?</p>
     <footer><span>한 그릇씩, 정성을 담아 ♡</span><button id="restart" disabled class="quiet">다시 시작</button></footer>
   </main>
-  <div id="drag-tray" class="drag-tray" hidden aria-label="라멘 받을 친구"><p>라멘 받을 친구에게 놓아 주세요</p><div id="drag-friends"></div></div>
   <div id="drag-bowl" class="drag-bowl sprite bowl" hidden aria-hidden="true"></div>
   <dialog id="dialog">
     <div class="modal-icon sprite bowl" aria-hidden="true"></div><span class="eyebrow">WELCOME TO GGURI RAMEN</span>
@@ -645,6 +656,7 @@ document.body.classList.toggle('drag-mode', mobileServing);
 
 function tutorialInstruction() {
   const step = tutorialSteps[tutorialStep];
+  if (mobileServing && step.action === 'pot') return {...step, target: '#pots .pot-art'};
   return mobileServing && step.action === 'serve' ? {...step, target: '#pots .pot-art', text: '1번 냄비의 라멘을 누른 채 위쪽 토끼 친구에게 끌어다 놓아 주세요.'} : step;
 }
 
@@ -654,10 +666,6 @@ function canUse(action) {
 // Cards are in HTML so file previews can display them without scripts.
 for (let i = 0; i < 3; i++) {
   $('customers').children[i].dataset.dropOrder = i;
-  const dropFriend = $('customers').children[i].cloneNode(true);
-  dropFriend.className = 'customer drag-friend'; dropFriend.disabled = false;
-  dropFriend.removeAttribute('aria-pressed');
-  $('drag-friends').append(dropFriend);
   $('customers').children[i].addEventListener('click', () => {
     if (!canUse('order') || (tutorialStep !== null && i !== 0)) return;
     selectedOrder = i; if (tutorialStep !== null) advanceTutorial(); else render();
@@ -667,7 +675,7 @@ for (let i = 0; i < 3; i++) {
     if (!canUse('pot') || (tutorialStep !== null && i !== 0)) return;
     selectedPot = i; if (tutorialStep !== null) advanceTutorial(); else render();
   });
-  $('pots').children[i].querySelector('.pot-art').addEventListener('pointerdown', event => beginServingDrag(event, i));
+  $('pots').children[i].addEventListener('pointerdown', event => beginServingDrag(event, i));
 }
 function tell(message, type = '') {
   $('message').textContent = message; $('message').className = `message ${type}`;
@@ -689,9 +697,6 @@ function render() {
     el.querySelector('.order-name').innerHTML = `<span class="sprite ${o.topping}" aria-hidden="true"></span> ${toppingLabels[o.topping]} 라멘`;
     el.querySelector('.patience i').style.width = `${o.patience / 30 * 100}%`;
     el.querySelector('.patience i').classList.toggle('low', o.patience < 10);
-    const dropFriend = $('drag-friends').children[i];
-    dropFriend.querySelector('.order-name').innerHTML = el.querySelector('.order-name').innerHTML;
-    dropFriend.setAttribute('aria-label', `${friendNames[i]}에게 ${toppingLabels[o.topping]} 라멘 내기`);
   });
   [...$('pots').children].forEach((el, i) => {
     const p = game.pots[i], ready = p.noodles && p.cook >= 6 && p.cook <= 10, burnt = p.cook > 10;
@@ -713,6 +718,7 @@ function stopTutorial() {
   tutorialStep = null; document.body.classList.remove('tutorial'); $('tutorial-panel').hidden = true;
   if (highlightedTarget) { highlightedTarget.classList.remove('tutorial-target'); highlightedTarget.removeAttribute('aria-describedby'); }
   highlightedTarget = null;
+  document.body.style.removeProperty('--customer-top');
 }
 function start() {
   stopTutorial(); suppressPotClickUntil = 0; game.start(); selectedPot = 0; selectedOrder = 0; paused = false; lastTime = performance.now();
@@ -725,6 +731,12 @@ function focusTutorialTarget() {
   const focusable = target.matches('button') ? target : target.closest('.pot-card').querySelector('button');
   if (!focusable.disabled) focusable.focus({preventScroll: true});
   target.scrollIntoView({block: 'center', behavior: 'auto'});
+  if (mobileServing && !target.closest('#customers')) {
+    const top = $('customers').closest('section').getBoundingClientRect().bottom + 10;
+    const bottom = innerHeight - document.querySelector('.action-row').getBoundingClientRect().height - 10;
+    const bounds = target.getBoundingClientRect();
+    window.scrollBy(0, bounds.top + bounds.height / 2 - (top + bottom) / 2);
+  }
 }
 function updateTutorial() {
   if (highlightedTarget) { highlightedTarget.classList.remove('tutorial-target'); highlightedTarget.removeAttribute('aria-describedby'); }
@@ -733,7 +745,9 @@ function updateTutorial() {
   $('tutorial-title').textContent = step.title; $('tutorial-text').textContent = step.text;
   highlightedTarget = document.querySelector(step.target);
   highlightedTarget.classList.add('tutorial-target'); highlightedTarget.setAttribute('aria-describedby', 'tutorial-text');
-  render(); focusTutorialTarget();
+  render();
+  document.body.style.setProperty('--customer-top', `${$('tutorial-panel').getBoundingClientRect().bottom + 6}px`);
+  focusTutorialTarget();
 }
 function advanceTutorial() { tutorialStep++; updateTutorial(); }
 function startTutorial() {
@@ -799,12 +813,16 @@ function serveTo(potIndex, orderIndex) {
 }
 
 // Pointer events handle both phone touch and narrow-screen mouse dragging.
-// Only prepared pots capture the gesture; the rest of the page still scrolls.
+// The whole pot card owns a prepared-bowl gesture; the rest of the page scrolls.
 function beginServingDrag(event, potIndex) {
   const pot = game.pots[potIndex];
   if (!mobileServing || servingDrag || !event.isPrimary || event.button !== 0 || !canUse('serve') || !pot.noodles || !pot.topping || (tutorialStep !== null && potIndex !== 0)) return;
   servingDrag = {id: event.pointerId, potIndex, source: event.currentTarget, x: event.clientX, y: event.clientY, moved: false, orderIndex: null};
   event.currentTarget.setPointerCapture(event.pointerId);
+  event.preventDefault();
+  selectedPot = potIndex;
+  document.documentElement.classList.add('holding-ramen');
+  render();
 }
 function moveServingDrag(event) {
   if (!servingDrag || event.pointerId !== servingDrag.id) return;
@@ -812,9 +830,7 @@ function moveServingDrag(event) {
   if (!servingDrag.moved) {
     servingDrag.moved = true; selectedPot = servingDrag.potIndex;
     document.body.classList.add('serving-drag');
-    $('drag-tray').hidden = false; $('drag-bowl').hidden = false;
-    const top = $('tutorial-panel').hidden ? 10 : $('tutorial-panel').getBoundingClientRect().bottom + 8;
-    $('drag-tray').style.top = `max(${top}px, env(safe-area-inset-top, 0px))`;
+    $('drag-bowl').hidden = false;
     render();
   }
   event.preventDefault();
@@ -827,7 +843,8 @@ function moveServingDrag(event) {
 function cancelServingDrag() {
   const previous = servingDrag; servingDrag = null;
   if (previous?.source.hasPointerCapture(previous.id)) previous.source.releasePointerCapture(previous.id);
-  $('drag-tray').hidden = true; $('drag-bowl').hidden = true;
+  $('drag-bowl').hidden = true;
+  document.documentElement.classList.remove('holding-ramen');
   document.body.classList.remove('serving-drag');
   document.querySelectorAll('.drop-hover').forEach(el => el.classList.remove('drop-hover'));
 }
@@ -842,6 +859,10 @@ function endServingDrag(event) {
   else if (moved) tell('손님에게 끌어다 놓아 주세요. 라멘은 냄비에 그대로 있어요.');
 }
 document.addEventListener('pointermove', moveServingDrag, {passive: false});
+// Safari also needs a non-passive touch handler to suppress native page panning.
+document.addEventListener('touchmove', event => {
+  if (servingDrag && event.cancelable) event.preventDefault();
+}, {passive: false});
 document.addEventListener('pointerup', endServingDrag);
 document.addEventListener('pointercancel', event => { if (event.pointerId === servingDrag?.id) cancelServingDrag(); });
 document.addEventListener('lostpointercapture', event => { if (event.pointerId === servingDrag?.id) cancelServingDrag(); });

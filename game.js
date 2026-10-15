@@ -23,6 +23,7 @@ document.body.classList.toggle('drag-mode', mobileServing);
 
 function tutorialInstruction() {
   const step = tutorialSteps[tutorialStep];
+  if (mobileServing && step.action === 'pot') return {...step, target: '#pots .pot-art'};
   return mobileServing && step.action === 'serve' ? {...step, target: '#pots .pot-art', text: '1번 냄비의 라멘을 누른 채 위쪽 토끼 친구에게 끌어다 놓아 주세요.'} : step;
 }
 
@@ -32,10 +33,6 @@ function canUse(action) {
 // Cards are in HTML so file previews can display them without scripts.
 for (let i = 0; i < 3; i++) {
   $('customers').children[i].dataset.dropOrder = i;
-  const dropFriend = $('customers').children[i].cloneNode(true);
-  dropFriend.className = 'customer drag-friend'; dropFriend.disabled = false;
-  dropFriend.removeAttribute('aria-pressed');
-  $('drag-friends').append(dropFriend);
   $('customers').children[i].addEventListener('click', () => {
     if (!canUse('order') || (tutorialStep !== null && i !== 0)) return;
     selectedOrder = i; if (tutorialStep !== null) advanceTutorial(); else render();
@@ -45,7 +42,7 @@ for (let i = 0; i < 3; i++) {
     if (!canUse('pot') || (tutorialStep !== null && i !== 0)) return;
     selectedPot = i; if (tutorialStep !== null) advanceTutorial(); else render();
   });
-  $('pots').children[i].querySelector('.pot-art').addEventListener('pointerdown', event => beginServingDrag(event, i));
+  $('pots').children[i].addEventListener('pointerdown', event => beginServingDrag(event, i));
 }
 function tell(message, type = '') {
   $('message').textContent = message; $('message').className = `message ${type}`;
@@ -67,9 +64,6 @@ function render() {
     el.querySelector('.order-name').innerHTML = `<span class="sprite ${o.topping}" aria-hidden="true"></span> ${toppingLabels[o.topping]} 라멘`;
     el.querySelector('.patience i').style.width = `${o.patience / 30 * 100}%`;
     el.querySelector('.patience i').classList.toggle('low', o.patience < 10);
-    const dropFriend = $('drag-friends').children[i];
-    dropFriend.querySelector('.order-name').innerHTML = el.querySelector('.order-name').innerHTML;
-    dropFriend.setAttribute('aria-label', `${friendNames[i]}에게 ${toppingLabels[o.topping]} 라멘 내기`);
   });
   [...$('pots').children].forEach((el, i) => {
     const p = game.pots[i], ready = p.noodles && p.cook >= 6 && p.cook <= 10, burnt = p.cook > 10;
@@ -91,6 +85,7 @@ function stopTutorial() {
   tutorialStep = null; document.body.classList.remove('tutorial'); $('tutorial-panel').hidden = true;
   if (highlightedTarget) { highlightedTarget.classList.remove('tutorial-target'); highlightedTarget.removeAttribute('aria-describedby'); }
   highlightedTarget = null;
+  document.body.style.removeProperty('--customer-top');
 }
 function start() {
   stopTutorial(); suppressPotClickUntil = 0; game.start(); selectedPot = 0; selectedOrder = 0; paused = false; lastTime = performance.now();
@@ -103,6 +98,12 @@ function focusTutorialTarget() {
   const focusable = target.matches('button') ? target : target.closest('.pot-card').querySelector('button');
   if (!focusable.disabled) focusable.focus({preventScroll: true});
   target.scrollIntoView({block: 'center', behavior: 'auto'});
+  if (mobileServing && !target.closest('#customers')) {
+    const top = $('customers').closest('section').getBoundingClientRect().bottom + 10;
+    const bottom = innerHeight - document.querySelector('.action-row').getBoundingClientRect().height - 10;
+    const bounds = target.getBoundingClientRect();
+    window.scrollBy(0, bounds.top + bounds.height / 2 - (top + bottom) / 2);
+  }
 }
 function updateTutorial() {
   if (highlightedTarget) { highlightedTarget.classList.remove('tutorial-target'); highlightedTarget.removeAttribute('aria-describedby'); }
@@ -111,7 +112,9 @@ function updateTutorial() {
   $('tutorial-title').textContent = step.title; $('tutorial-text').textContent = step.text;
   highlightedTarget = document.querySelector(step.target);
   highlightedTarget.classList.add('tutorial-target'); highlightedTarget.setAttribute('aria-describedby', 'tutorial-text');
-  render(); focusTutorialTarget();
+  render();
+  document.body.style.setProperty('--customer-top', `${$('tutorial-panel').getBoundingClientRect().bottom + 6}px`);
+  focusTutorialTarget();
 }
 function advanceTutorial() { tutorialStep++; updateTutorial(); }
 function startTutorial() {
@@ -177,12 +180,16 @@ function serveTo(potIndex, orderIndex) {
 }
 
 // Pointer events handle both phone touch and narrow-screen mouse dragging.
-// Only prepared pots capture the gesture; the rest of the page still scrolls.
+// The whole pot card owns a prepared-bowl gesture; the rest of the page scrolls.
 function beginServingDrag(event, potIndex) {
   const pot = game.pots[potIndex];
   if (!mobileServing || servingDrag || !event.isPrimary || event.button !== 0 || !canUse('serve') || !pot.noodles || !pot.topping || (tutorialStep !== null && potIndex !== 0)) return;
   servingDrag = {id: event.pointerId, potIndex, source: event.currentTarget, x: event.clientX, y: event.clientY, moved: false, orderIndex: null};
   event.currentTarget.setPointerCapture(event.pointerId);
+  event.preventDefault();
+  selectedPot = potIndex;
+  document.documentElement.classList.add('holding-ramen');
+  render();
 }
 function moveServingDrag(event) {
   if (!servingDrag || event.pointerId !== servingDrag.id) return;
@@ -190,9 +197,7 @@ function moveServingDrag(event) {
   if (!servingDrag.moved) {
     servingDrag.moved = true; selectedPot = servingDrag.potIndex;
     document.body.classList.add('serving-drag');
-    $('drag-tray').hidden = false; $('drag-bowl').hidden = false;
-    const top = $('tutorial-panel').hidden ? 10 : $('tutorial-panel').getBoundingClientRect().bottom + 8;
-    $('drag-tray').style.top = `max(${top}px, env(safe-area-inset-top, 0px))`;
+    $('drag-bowl').hidden = false;
     render();
   }
   event.preventDefault();
@@ -205,7 +210,8 @@ function moveServingDrag(event) {
 function cancelServingDrag() {
   const previous = servingDrag; servingDrag = null;
   if (previous?.source.hasPointerCapture(previous.id)) previous.source.releasePointerCapture(previous.id);
-  $('drag-tray').hidden = true; $('drag-bowl').hidden = true;
+  $('drag-bowl').hidden = true;
+  document.documentElement.classList.remove('holding-ramen');
   document.body.classList.remove('serving-drag');
   document.querySelectorAll('.drop-hover').forEach(el => el.classList.remove('drop-hover'));
 }
@@ -220,6 +226,10 @@ function endServingDrag(event) {
   else if (moved) tell('손님에게 끌어다 놓아 주세요. 라멘은 냄비에 그대로 있어요.');
 }
 document.addEventListener('pointermove', moveServingDrag, {passive: false});
+// Safari also needs a non-passive touch handler to suppress native page panning.
+document.addEventListener('touchmove', event => {
+  if (servingDrag && event.cancelable) event.preventDefault();
+}, {passive: false});
 document.addEventListener('pointerup', endServingDrag);
 document.addEventListener('pointercancel', event => { if (event.pointerId === servingDrag?.id) cancelServingDrag(); });
 document.addEventListener('lostpointercapture', event => { if (event.pointerId === servingDrag?.id) cancelServingDrag(); });
