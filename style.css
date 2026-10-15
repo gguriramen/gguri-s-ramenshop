@@ -627,3 +627,50 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
   .drag-mode .tutorial-panel { margin: 1px 8px 3px; }
 }
 .drag-mode .header-actions .quiet { min-width: 44px; }
+
+/* Keep a permanent notice space above the friends and shorten the kitchen. */
+.notice-space { display: contents; }
+.notice-idle { display: none; }
+.drag-mode .shop, .drag-mode.playing .shop, .drag-mode.tutorial .shop {
+  grid-template-areas: 'header' 'stats' 'notice' 'customers' 'kitchen';
+  grid-template-rows: 48px 46px minmax(76px, 1fr) clamp(110px, 22dvh, 166px) clamp(224px, 44dvh, 380px);
+}
+.drag-mode .notice-space { grid-area: notice; display: grid; align-items: center; min-height: 0; padding: 5px 10px; }
+.drag-mode .notice-space > * { grid-area: 1 / 1; }
+.drag-mode .notice-idle { display: block; margin: 0; padding: 10px; color: var(--muted); font-size: 12px; text-align: center; word-break: keep-all; }
+.drag-mode .notice-space:has(.input-feedback:not([hidden]), .tutorial-panel:not([hidden])) .notice-idle { visibility: hidden; }
+.drag-mode .notice-space .tutorial-panel { grid-area: 1 / 1; margin: 0; }
+.drag-mode .notice-space .input-feedback { position: static; inset: auto !important; transform: none; width: 100%; max-width: 540px; justify-self: center; margin: 0; padding: 6px 8px; gap: 7px; border-radius: 18px; box-shadow: 0 3px 0 #d1aa8030; }
+.drag-mode .notice-space #feedback-text { font-size: 16px; line-height: 1.35; }
+.drag-mode .notice-space .feedback-bowl { width: 44px; height: 68px; margin: -12px 0; }
+.drag-mode .notice-space .is-success #feedback-text { font-size: 18px; }
+.drag-mode .notice-space:has(.input-feedback:not([hidden])) .tutorial-panel { visibility: hidden; }
+@media (max-height: 600px) {
+  .drag-mode .shop, .drag-mode.playing .shop, .drag-mode.tutorial .shop {
+    grid-template-rows: 44px 42px minmax(68px, 1fr) 94px clamp(224px, 44dvh, 264px);
+  }
+}
+@media (orientation: landscape) and (max-height: 550px) {
+  .drag-mode .shop, .drag-mode.playing .shop, .drag-mode.tutorial .shop {
+    grid-template-areas: 'header header' 'stats stats' 'notice notice' 'customers kitchen';
+    grid-template-rows: 44px 40px 68px minmax(0, 1fr);
+  }
+  .drag-mode .notice-space { padding: 3px 10px; }
+}
+@media (orientation: portrait) and (max-height: 600px) {
+  .drag-mode .shop, .drag-mode.playing .shop, .drag-mode.tutorial .shop {
+    grid-template-rows: 44px 40px minmax(60px, 1fr) 98px clamp(238px, 44dvh, 264px);
+  }
+  .drag-mode #customers .avatar.sprite { width: 23px; flex-shrink: 0; }
+  .drag-mode #customers .order-name { font-size: 10px; }
+  .drag-mode #customers .order-name .sprite { width: 16px; height: 17px; }
+  .drag-mode #pots .pot-art { min-height: 28px; height: 44px; }
+  .drag-mode #pots .vessel { top: calc(50% - 4px); transform: translate(-50%, -50%) scale(.7); }
+  .drag-mode #pots .pot-status { min-height: 13px; font-size: 9px; }
+  .drag-mode .notice-space #feedback-text { font-size: 14px; }
+  .drag-mode .notice-space .is-success #feedback-text { font-size: 16px; }
+  .drag-mode .notice-space { padding: 0 8px; }
+  .drag-mode .notice-space .feedback-bowl { width: 36px; height: 56px; margin: -8px 0; }
+  .drag-mode #tutorial-title { font-size: 14px; margin-bottom: 1px; }
+  .drag-mode #tutorial-text { font-size: 10px; line-height: 1.25; }
+}
