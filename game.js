@@ -25,8 +25,11 @@ document.body.classList.toggle('drag-mode', mobileServing);
 const welcomeHero = document.querySelector('#dialog-welcome .hero-grid');
 function placeWelcome() {
   document.documentElement.classList.toggle('mobile-board', mobileServing);
-  if (mobileServing) $('dialog-welcome').append(welcomeHero);
-  else document.querySelector('.shopfront').insertBefore(welcomeHero, document.querySelector('.stats'));
+  if (mobileServing) $('dialog-welcome').replaceChildren(welcomeHero);
+  else {
+    document.querySelector('.shopfront').insertBefore(welcomeHero, document.querySelector('.stats'));
+    $('dialog-welcome').replaceChildren(welcomeHero.cloneNode(true));
+  }
 }
 placeWelcome();
 

@@ -740,3 +740,17 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
     grid-template-rows: 44px 52px 52px minmax(0, 1fr);
   }
 }
+
+/* A full-width welcome illustration with the greeting in front of it. */
+#dialog:not(.is-result):not(.is-tutorial-complete) { padding: 20px; }
+#dialog #dialog-welcome { display: block; margin: -20px -20px 0; }
+#dialog.is-result #dialog-welcome, #dialog.is-tutorial-complete #dialog-welcome { display: none; }
+#dialog > .modal-icon, #dialog > .eyebrow { display: none; }
+#dialog #dialog-welcome .hero-grid { display: block; position: relative; }
+#dialog #dialog-welcome .hero-art { width: 100%; max-width: none; margin: 0; border: 0; border-radius: 0; box-shadow: none; }
+#dialog #dialog-welcome .hero-art img { display: block; width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: contain; }
+#dialog #dialog-welcome .shop-title { position: absolute; inset: 0; z-index: 1; padding: 16px; text-align: left; background: linear-gradient(90deg, #14264075, transparent 65%); pointer-events: none; }
+#dialog #dialog-welcome h1 { margin: 0; color: #fff8e7; font-size: clamp(26px, 7vw, 34px); line-height: 1.15; text-shadow: 0 2px 5px #142640; }
+#dialog #dialog-welcome h1 br { display: block; }
+#dialog #dialog-welcome h1 span { color: inherit; margin: 0; }
+#dialog #dialog-welcome .eyebrow, #dialog #dialog-welcome .hero-note, #dialog #dialog-welcome .shop-title p, #dialog #dialog-welcome figcaption { display: none; }
