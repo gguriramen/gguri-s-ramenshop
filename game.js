@@ -5,11 +5,11 @@ const toppingLabels = {egg: '달걀', green: '파', meat: '차슈'};
 const friendNames = ['토끼 친구', '고양이 친구', '강아지 친구'];
 const tutorialKey = 'gguri-ramen-tutorial-complete-v1';
 const tutorialSteps = [
-  {action: 'order', target: '#customers .customer', title: '토끼 친구의 주문을 봐요', text: '토끼 친구가 달걀 라멘을 주문했어요. 반짝이는 토끼 친구를 눌러 주세요.'},
+  {action: 'order', target: '#customers .customer', title: '토끼 친구의 주문을 봐요', text: ''},
   {action: 'pot', target: '#pots .pot-select', title: '첫 번째 냄비를 골라요', text: '반짝이는 1번 냄비를 눌러 주세요. 이 냄비에 첫 라멘을 만들 거예요.'},
   {action: 'water', target: '[data-ingredient="water"]', title: '물을 먼저 부어요', text: '물방울이 있는 물 버튼을 눌러 냄비에 물을 부어 주세요.'},
   {action: 'noodles', target: '[data-ingredient="noodles"]', title: '쫄깃한 면을 넣어요', text: '노란 면 버튼을 눌러 주세요. 물 다음에는 면이에요!'},
-  {action: 'egg', target: '[data-ingredient="egg"]', title: '주문한 달걀을 올려요', text: '토끼 친구가 고른 반숙 달걀 버튼을 눌러 주세요. 토핑은 하나만 넣어요.'},
+  {action: 'topping'},
   {action: 'wait', target: '#pots .cook-meter', title: '초록색 구간을 기다려요', text: '하트가 움직여요! 면을 넣고 6~10초가 초록색 구간이에요. 연습에서는 면이 불지 않아요.'},
   {action: 'serve', target: '#serve', title: '이제 맛있게 내주세요!', text: '하트가 초록색에 도착했어요. 손님에게 내기 버튼을 눌러 주세요.'}
 ];
@@ -34,14 +34,17 @@ function placeWelcome() {
 placeWelcome();
 
 function tutorialInstruction() {
-  const step = tutorialSteps[tutorialStep];
+  let step = tutorialSteps[tutorialStep];
+  const topping = game.orders[0].topping, label = toppingLabels[topping];
+  if (step.action === 'order') step = {...step, text: `토끼 친구가 ${label} 라멘을 주문했어요. 반짝이는 토끼 친구를 눌러 주세요.`};
+  if (step.action === 'topping') step = {action: topping, target: `[data-ingredient="${topping}"]`, title: `주문한 ${label} 토핑을 올려요`, text: `토끼 친구가 고른 ${label} 버튼을 눌러 주세요. 토핑은 하나만 넣어요.`};
   if (!mobileServing) return step;
   const copy = {
-    order: '달걀 라멘을 주문한 토끼 친구를 눌러 주세요.',
+    order: `${label} 라멘을 주문한 토끼 친구를 눌러 주세요.`,
     pot: '왼쪽 냄비를 눌러 첫 라멘을 만들어요.',
     water: '물방울을 왼쪽 냄비로 끌어다 놓아요.',
     noodles: '노란 면을 왼쪽 냄비로 끌어다 놓아요.',
-    egg: '달걀을 왼쪽 냄비로 끌어다 놓아요.',
+    [topping]: `${label} 토핑을 왼쪽 냄비로 끌어다 놓아요.`,
     wait: '초록색은 6~10초! 연습에서는 면이 불지 않아요.',
     serve: '라멘을 누른 채 토끼 친구에게 끌어다 놓아요.'
   };
@@ -49,7 +52,7 @@ function tutorialInstruction() {
 }
 
 function canUse(action) {
-  return game.active && !paused && (tutorialStep === null || tutorialSteps[tutorialStep].action === action);
+  return game.active && !paused && (tutorialStep === null || tutorialInstruction().action === action);
 }
 // Cards are in HTML so file previews can display them without scripts.
 for (let i = 0; i < 3; i++) {
@@ -171,7 +174,7 @@ function updateTutorial() {
 }
 function advanceTutorial() { tutorialStep++; updateTutorial(); }
 function startTutorial() {
-  stopTutorial(); suppressPotClickUntil = 0; game.start(); game.orders[0] = {topping: 'egg', patience: 30};
+  stopTutorial(); suppressPotClickUntil = 0; game.start();
   selectedPot = 0; selectedOrder = 0; paused = false; tutorialStep = 0; lastTime = performance.now();
   document.body.classList.add('playing', 'tutorial'); $('dialog').close(); $('tutorial-panel').hidden = false;
   tell('첫 라멘은 함께 만들어요. 시간 걱정 없이 반짝이는 곳을 눌러 주세요.'); updateTutorial();
