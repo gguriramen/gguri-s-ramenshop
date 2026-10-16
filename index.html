@@ -851,8 +851,8 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
 
 /* The entry form shares a compact welcome card with the shop portrait. */
 #dialog.is-start #dialog-welcome { margin: 0 0 12px; }
-#dialog.is-start #dialog-welcome .hero-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 12px; align-items: center; }
-#dialog.is-start #dialog-welcome .shop-title { position: static; padding: 0; background: none; }
+#dialog.is-start #dialog-welcome .hero-grid { display: grid; grid-template-columns: 1fr 1.3fr; gap: 6px; align-items: center; }
+#dialog.is-start #dialog-welcome .shop-title { position: static; padding: 0; background: none; text-align: center; }
 #dialog.is-start #dialog-welcome h1 { color: var(--navy); font-size: clamp(25px, 7vw, 32px); line-height: 1.25; text-shadow: none; }
 #dialog.is-start #dialog-welcome .hero-art { overflow: hidden; border-radius: 16px; }
 #dialog.is-start .player-entry { margin: 12px 0; }
@@ -861,8 +861,7 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
 @media (max-height: 740px) {
   #dialog.is-start:not(.is-result) { padding: 12px; }
   #dialog.is-start #dialog-welcome { margin-bottom: 6px; }
-  #dialog.is-start #dialog-welcome .hero-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-  #dialog.is-start #dialog-welcome .hero-art { max-width: 135px; justify-self: end; }
+  #dialog.is-start #dialog-welcome .hero-art { justify-self: center; }
   #dialog.is-start #dialog-welcome h1 { font-size: 25px; }
   #dialog.is-start #dialog-title { margin: 6px 0; font-size: 21px; line-height: 1.2; }
   #dialog.is-start #dialog-description { margin: 5px 0; font-size: 11px; }
@@ -874,7 +873,7 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
   #dialog.is-start #dialog-secondary { margin-top: 4px; padding: 8px; }
 }
 @media (max-height: 600px) and (max-width: 559px) {
-  #dialog.is-start #dialog-welcome .hero-art { max-width: 105px; }
+  #dialog.is-start #dialog-welcome .hero-art { max-width: 120px; }
   #dialog.is-start #dialog-title { font-size: 19px; }
   #dialog.is-start #dialog-title br { display: none; }
   #dialog.is-start #dialog-description { display: none; }
@@ -882,6 +881,7 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
 }
 @media (max-height: 500px) and (min-width: 560px) {
   #dialog.is-start { max-width: 680px; }
+  #dialog.is-start #dialog-welcome .hero-art { max-width: 135px; }
   #dialog.is-start[open] { display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; align-items: center; }
   #dialog.is-start #dialog-welcome { grid-column: 1; grid-row: 1; }
   #dialog.is-start #dialog-title { grid-column: 1; grid-row: 2; }
