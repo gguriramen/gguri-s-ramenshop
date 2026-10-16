@@ -8,6 +8,11 @@ function updateMyProfile() {
   $('my-player-name').textContent = profile?.name || '아이디를 입력해 주세요';
   $('my-best-score').textContent = (profile?.bestScore || 0).toLocaleString();
   $('my-play-time').textContent = KkuriSocial.duration(profile?.playMs || 0);
+  const avatar = KkuriSocial.avatars.find(a => a.id === (profile?.avatar || 'natural'));
+  document.querySelectorAll('[data-current-avatar]').forEach(el => { el.dataset.avatar = avatar.id; });
+  $('avatar-name').textContent = avatar.name;
+  $('avatar-open').disabled = !profile;
+  document.querySelectorAll('[data-avatar-choice]').forEach(el => { el.setAttribute('aria-pressed', String(el.dataset.avatarChoice === avatar.id)); });
   $('profile-note').textContent = !playerStore.storageAvailable ? '이 브라우저에서는 기록 저장이 제한돼요.' : playerStore.status === 'online' ? '기록이 저장됐어요.' : playerStore.configured ? '기록은 이 기기에 보관 중이에요. 연결되면 다시 저장해요.' : '내 기록은 이 기기에 저장돼요. 전체 랭킹은 연결 준비 중이에요.';
 }
 playerStore.onchange = updateMyProfile;
@@ -53,9 +58,37 @@ function openCommunity() {
 function closeCommunity() {
   $('community-dialog').close();
 }
+function toggleAvatarPicker(open) {
+  $('avatar-picker').hidden = !open;
+  $('ranking-section').hidden = open;
+  $('avatar-open').setAttribute('aria-expanded', String(open));
+  if (open) document.querySelector('[data-avatar-choice][aria-pressed="true"]').focus({preventScroll: true});
+  else $('avatar-open').focus({preventScroll: true});
+}
+for (const avatar of KkuriSocial.avatars) {
+  const button = document.createElement('button');
+  button.type = 'button'; button.dataset.avatarChoice = avatar.id;
+  button.setAttribute('aria-pressed', 'false');
+  const art = document.createElement('span');
+  art.className = 'avatar-art'; art.dataset.avatar = avatar.id; art.setAttribute('aria-hidden', 'true');
+  const name = document.createElement('span'); name.textContent = avatar.name;
+  button.append(art, name);
+  button.addEventListener('click', () => {
+    if (playerStore.selectAvatar(avatar.id)) {
+      $('avatar-status').textContent = `${avatar.name}로 바꿨어요.`;
+      toggleAvatarPicker(false);
+    }
+  });
+  $('avatar-choices').append(button);
+}
+$('avatar-open').addEventListener('click', () => toggleAvatarPicker($('avatar-picker').hidden));
+$('avatar-back').addEventListener('click', () => toggleAvatarPicker(false));
 $('community-open').addEventListener('click', openCommunity);
 $('community-close').addEventListener('click', closeCommunity);
 $('community-dialog').addEventListener('close', () => {
+  $('avatar-picker').hidden = true;
+  $('ranking-section').hidden = false;
+  $('avatar-open').setAttribute('aria-expanded', 'false');
   rankingRequest++;
   paused = communityPaused; lastTime = performance.now();
   if (tutorialStep !== null && !paused) focusTutorialTarget();

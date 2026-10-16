@@ -1,6 +1,14 @@
 (function (root) {
   'use strict';
   const key = 'kkuri-player-records-v1';
+  const avatars = Object.freeze([
+    {id: 'natural', name: '포근한 꾸리'},
+    {id: 'chef', name: '라멘 사장님'},
+    {id: 'raincoat', name: '노란 우비'},
+    {id: 'gardener', name: '초록 정원사'},
+    {id: 'sailor', name: '바다 나들이'},
+    {id: 'hoodie', name: '분홍 후드'}
+  ].map(Object.freeze));
   function runId() {
     if (root.crypto?.randomUUID) return root.crypto.randomUUID();
     const bytes = new Uint8Array(16);
@@ -49,7 +57,15 @@
       const p = this.state.profiles[nameKey];
       if (!p) return null;
       const runs = Object.values(this.state.runs).filter(r => r.playerKey === nameKey);
-      return {name: p.name, bestScore: Math.max(p.bestScore || 0, ...runs.filter(r => r.finished).map(r => r.score)), playMs: (p.serverPlayMs || 0) + runs.reduce((sum, r) => sum + Math.max(0, r.playMs - (r.syncedPlayMs || 0)), 0)};
+      return {name: p.name, avatar: avatars.some(a => a.id === p.avatar) ? p.avatar : 'natural', bestScore: Math.max(p.bestScore || 0, ...runs.filter(r => r.finished).map(r => r.score)), playMs: (p.serverPlayMs || 0) + runs.reduce((sum, r) => sum + Math.max(0, r.playMs - (r.syncedPlayMs || 0)), 0)};
+    }
+    selectAvatar(id) {
+      if (!avatars.some(a => a.id === id)) throw new Error('선택할 수 없는 꾸리예요.');
+      const profile = this.state.profiles[this.state.active];
+      if (!profile) return false;
+      profile.avatar = id;
+      this.persist(); this.onchange();
+      return true;
     }
     async selectPlayer(value) {
       const name = playerName(value), nameKey = name.toLowerCase();
@@ -158,7 +174,7 @@
       } catch (error) { this.status = 'offline'; this.onchange(); throw error; }
     }
   }
-  const api = {PlayerStore, playerName, duration};
+  const api = {PlayerStore, playerName, duration, avatars};
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.KkuriSocial = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

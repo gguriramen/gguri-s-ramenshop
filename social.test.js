@@ -13,9 +13,9 @@ test('best score stays at the best finished run and time accumulates separately 
   const store = local(); await store.selectPlayer('Ramen');
   store.beginRun(); store.advanceRun(200, 20000); store.finishRun(200);
   store.beginRun(); store.advanceRun(80, 10000); store.finishRun(80); store.finishRun(80);
-  assert.deepEqual(store.profile(), {name: 'Ramen', bestScore: 200, playMs: 30000});
+  assert.deepEqual(store.profile(), {name: 'Ramen', avatar: 'natural', bestScore: 200, playMs: 30000});
   await store.selectPlayer('토끼친구'); store.beginRun(); store.advanceRun(100, 6000); store.finishRun(100);
-  assert.deepEqual(store.profile(), {name: '토끼친구', bestScore: 100, playMs: 6000});
+  assert.deepEqual(store.profile(), {name: '토끼친구', avatar: 'natural', bestScore: 100, playMs: 6000});
   await store.selectPlayer('ramen'); assert.equal(store.profile().bestScore, 200); assert.equal(store.profile().playMs, 30000);
 });
 test('interrupted progress survives reload once, and blocked storage still permits session play', async () => {
@@ -86,4 +86,28 @@ test('an expired anonymous session refreshes rather than creating a different ow
   assert.equal(calls[1].token, 'Bearer new-access');
   assert.ok(!calls.some(c => c.url.endsWith('/signup')));
   assert.equal(store.profile().bestScore, 100);
+});
+
+test('outfits default for old profiles, persist independently per ID, and reject unknown choices', async () => {
+  const storage = memory(), store = local(storage);
+  assert.equal(store.selectAvatar('chef'), false);
+  await store.selectPlayer('꾸리친구');
+  assert.equal(store.profile().avatar, 'natural');
+  store.beginRun(); store.advanceRun(100, 6000); store.finishRun(100);
+  assert.equal(store.selectAvatar('chef'), true);
+  await store.selectPlayer('토끼친구');
+  assert.equal(store.profile().avatar, 'natural');
+  store.selectAvatar('hoodie');
+  const restored = local(storage);
+  assert.equal(restored.profile().avatar, 'hoodie');
+  await restored.selectPlayer('꾸리친구');
+  assert.equal(restored.profile().avatar, 'chef');
+  assert.equal(restored.profile().bestScore, 100);
+  assert.equal(restored.profile().playMs, 6000);
+  assert.throws(() => restored.selectAvatar('unknown'));
+  assert.equal(restored.profile().avatar, 'chef');
+  delete restored.state.profiles[restored.state.active].avatar;
+  assert.equal(restored.profile().avatar, 'natural');
+  restored.state.profiles[restored.state.active].avatar = '__proto__';
+  assert.equal(restored.profile().avatar, 'natural');
 });

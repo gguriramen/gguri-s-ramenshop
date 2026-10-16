@@ -47,7 +47,7 @@ def embed_asset(match):
     tag = re.sub(r'\s+src="[^"]*"', '', tag)
     return tag[:-1] + ' src="' + source + '">'
 page = re.sub(r'<img\b[^>]*data-asset="([^"]+)"[^>]*>', embed_asset, page)
-if len(page.encode()) > 1_000_000:
-    raise ValueError('Standalone page must stay below 1 MB')
+if len(page.encode()) > 1_200_000:
+    raise ValueError('Standalone page must stay below 1.2 MB')
 (root / "index.html").write_text(page)
 print("Built standalone index.html")

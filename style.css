@@ -884,6 +884,38 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
 }
 #community-open.community-toggle { display: grid; place-items: center; width: 44px; height: 44px; min-width: 44px; padding: 0; border: 2px solid #293f5a; border-radius: 50%; background: #3c5573; color: #fff8e8; }
 #community-open:hover { background: #20395d; }
+.avatar-art { display: block; width: 100%; height: 100%; border-radius: inherit; background-color: #fff9e9; background-image: var(--avatar-sheet); background-size: 300% 200%; background-position: 0 0; background-repeat: no-repeat; }
+:root { --avatar-sheet: url("assets/kkuri-avatars.webp"); }
+.avatar-art[data-avatar='chef'] { background-position: 50% 0; }
+.avatar-art[data-avatar='raincoat'] { background-position: 100% 0; }
+.avatar-art[data-avatar='gardener'] { background-position: 0 100%; }
+.avatar-art[data-avatar='sailor'] { background-position: 50% 100%; }
+.avatar-art[data-avatar='hoodie'] { background-position: 100% 100%; }
+#community-open.community-toggle { padding: 2px; background: #f5e5bd; }
+.profile-identity { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; text-align: left; }
+.avatar-open { position: relative; flex: 0 0 88px; width: 88px; height: 88px; padding: 3px; border: 2px solid #af9162; border-radius: 50%; background: #fff8e4; }
+.avatar-open:hover { border-color: #20395d; }
+.avatar-edit { position: absolute; bottom: -1px; right: -1px; display: grid; place-items: center; width: 27px; height: 27px; border: 2px solid #fff8e4; border-radius: 50%; background: #3c5573; color: #fff8e4; font: 19px sans-serif; }
+.profile-nickname { min-width: 0; }
+.profile-identity #my-player-name { margin: 5px 0; font-size: 24px; }
+#avatar-name { color: #786b5b; font-size: 11px; }
+.avatar-picker[hidden], #ranking-section[hidden] { display: none; }
+.avatar-picker-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.avatar-picker h3 { margin: 8px 0; font: 22px 'Gguri Jua', sans-serif; color: var(--navy); }
+#avatar-back { min-height: 44px; font-size: 12px; }
+.avatar-picker > p { margin: 0 0 12px; color: #786b5b; font-size: 12px; }
+.avatar-choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.avatar-choices button { min-width: 0; padding: 6px 4px; border: 2px solid #d8c9ae; border-radius: 17px; background: #fffbef; color: #364b64; font: 13px 'Gguri Jua', sans-serif; }
+.avatar-choices .avatar-art { width: 100%; height: auto; aspect-ratio: 1; border-radius: 12px; margin-bottom: 6px; }
+.avatar-choices [aria-pressed='true'] { border-color: #34577b; background: #e5edf0; box-shadow: 0 0 0 1px #34577b; }
+.avatar-choices [aria-pressed='true'] > span:last-child::before { content: '✓ '; }
+.avatar-open:focus-visible, .avatar-choices button:focus-visible { outline: 3px solid #34577b; outline-offset: 3px; }
+@media (max-width: 360px) {
+  .profile-identity { gap: 12px; }
+  .avatar-open { flex-basis: 72px; width: 72px; height: 72px; }
+  .avatar-choices { gap: 7px; }
+  .avatar-choices button { font-size: 12px; }
+}
 #community-dialog { width: calc(100% - 24px); max-width: 560px; padding: 18px; }
 .community-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
 #community-dialog h2 { margin: 0; font-family: 'Gguri Jua', sans-serif; font-size: 25px; }
