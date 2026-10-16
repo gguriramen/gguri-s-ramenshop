@@ -839,6 +839,49 @@ body.drag-mode { height: 100vh; height: 100dvh; overflow: hidden; overscroll-beh
 #player-name-hint, #player-entry-error { margin: 5px 0 0; font-size: 10px; line-height: 1.5; }
 #player-name-hint { color: #786b5b; }
 #player-entry-error { color: #a14e35; }
+
+/* The entry form shares a compact welcome card with the shop portrait. */
+#dialog.is-start #dialog-welcome { margin: 0 0 12px; }
+#dialog.is-start #dialog-welcome .hero-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 12px; align-items: center; }
+#dialog.is-start #dialog-welcome .shop-title { position: static; padding: 0; background: none; }
+#dialog.is-start #dialog-welcome h1 { color: var(--navy); font-size: clamp(25px, 7vw, 32px); line-height: 1.25; text-shadow: none; }
+#dialog.is-start #dialog-welcome .hero-art { overflow: hidden; border-radius: 16px; }
+#dialog.is-start .player-entry { margin: 12px 0; }
+#dialog.is-start .modal-note { display: none; }
+#dialog.is-start #dialog-secondary { min-height: 44px; }
+@media (max-height: 740px) {
+  #dialog.is-start:not(.is-result) { padding: 12px; }
+  #dialog.is-start #dialog-welcome { margin-bottom: 6px; }
+  #dialog.is-start #dialog-welcome .hero-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  #dialog.is-start #dialog-welcome .hero-art { max-width: 135px; justify-self: end; }
+  #dialog.is-start #dialog-welcome h1 { font-size: 25px; }
+  #dialog.is-start #dialog-title { margin: 6px 0; font-size: 21px; line-height: 1.2; }
+  #dialog.is-start #dialog-description { margin: 5px 0; font-size: 11px; }
+  #dialog.is-start .instructions, .drag-mode #dialog.is-start .instructions { margin: 8px 0; padding: 6px 10px; }
+  #dialog.is-start .instructions p, .drag-mode #dialog.is-start .instructions p { margin: 4px 0; font-size: 11px; line-height: 1.45; }
+  #dialog.is-start .instructions p:last-child { display: none; }
+  #dialog.is-start .player-entry { margin: 8px 0; }
+  #dialog.is-start #dialog-action { min-height: 48px; padding: 10px; font-size: 18px; }
+  #dialog.is-start #dialog-secondary { margin-top: 4px; padding: 8px; }
+}
+@media (max-height: 600px) and (max-width: 559px) {
+  #dialog.is-start #dialog-welcome .hero-art { max-width: 105px; }
+  #dialog.is-start #dialog-title { font-size: 19px; }
+  #dialog.is-start #dialog-title br { display: none; }
+  #dialog.is-start #dialog-description { display: none; }
+  #dialog.is-start .instructions .touch-instructions { display: none; }
+}
+@media (max-height: 500px) and (min-width: 560px) {
+  #dialog.is-start { max-width: 680px; }
+  #dialog.is-start[open] { display: grid; grid-template-columns: 1fr 1fr; column-gap: 20px; align-items: center; }
+  #dialog.is-start #dialog-welcome { grid-column: 1; grid-row: 1; }
+  #dialog.is-start #dialog-title { grid-column: 1; grid-row: 2; }
+  #dialog.is-start #dialog-description { grid-column: 1; grid-row: 3; }
+  #dialog.is-start .instructions { grid-column: 2; grid-row: 1 / 4; }
+  #dialog.is-start .player-entry { grid-column: 2; grid-row: 4 / 6; }
+  #dialog.is-start #dialog-action { grid-column: 1; grid-row: 4; }
+  #dialog.is-start #dialog-secondary { grid-column: 1; grid-row: 5; }
+}
 #community-open.community-toggle { display: grid; place-items: center; width: 44px; height: 44px; min-width: 44px; padding: 0; border: 2px solid #293f5a; border-radius: 50%; background: #3c5573; color: #fff8e8; }
 #community-open:hover { background: #20395d; }
 #community-dialog { width: calc(100% - 24px); max-width: 560px; padding: 18px; }
